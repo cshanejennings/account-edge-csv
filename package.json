@@ -2,7 +2,7 @@
   "name": "wlc_inventory",
   "version": "0.0.0",
   "description": "Inventory parsing application for AccountEdge inventory reports",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "grunt qunit"
   },
