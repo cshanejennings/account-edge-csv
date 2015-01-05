@@ -1,5 +1,5 @@
 {
-  "name": "wlc_inventory",
+  "name": "account-edge-csv",
   "version": "0.0.0",
   "description": "Inventory parsing application for AccountEdge inventory reports",
   "main": "src/index.js",
