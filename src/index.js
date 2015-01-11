@@ -4,7 +4,7 @@ var fs = require('fs'),
 	debugMode = false,
 	api = {},
 	types = {
-		item_transactions: require('./types/item_transactions')
+		"item-transactions": require('./types/item_transactions/index.js')
 	};
 
 function create_json(raw_data, type, done) {
@@ -24,7 +24,7 @@ api.parse_csv_data = function (csv_str, complete, options) {
 	var raw_data = {
 		csv_str: csv_str
 	};
-	create_json(raw_data, "item_transactions", complete);
+	create_json(raw_data, "item-transactions", complete);
 	
 };
 
