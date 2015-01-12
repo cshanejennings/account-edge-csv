@@ -4,34 +4,31 @@ var fs = require('fs'),
 	debugMode = false,
 	api = {},
 	types = {
-		"item-transactions": require('./types/item_transactions/index.js')
+		"item-transactions": require('./types/item_transactions/index.js'),
+		"item-register-detail": require('./types/item_register_detail/index.js')
 	};
 
-function create_json(raw_data, type, done) {
-	var func = types[type];
+function create_json(sessionData, done) {
+	var func = types[sessionData.type];
 	try {
-		func(raw_data, function (json) {
-			raw_data.json = json;
-			done(null, raw_data);
+		func(sessionData, function (json) {
+			sessionData.json = json;
+			done(null, sessionData);
 		});
 	} catch (error) {
-		done
+		console.error(error);
 	}
 }
 
 
-api.parse_csv_data = function (csv_str, complete, options) {
-	var raw_data = {
-		csv_str: csv_str
-	};
-	create_json(raw_data, "item-transactions", complete);
-	
+api.parse_csv_data = function (sessionData, done) {
+	create_json(sessionData, done);
 };
 
 
-api.parse_csv_file = function (file_name, complete, options) {
-	var raw_csv_str = rf.readFileSync(file_name);
-	api.parse_csv_data(raw_csv_str, complete);
+api.parse_csv_file = function (sessionData, done) {
+	sessionData.csv_str = rf.readFileSync(sessionData.file_name);
+	create_json(sessionData, done);
 };
 
 

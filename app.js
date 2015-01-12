@@ -16,7 +16,16 @@ function print_supplements(supplements, threshold, count) {
 		}
 	}
 }
-csv_parser.parse_csv_file('Item Transactions.csv', function (err, output) {
+var options1 = {
+	file_name: 'Item Transactions.csv',
+	type: "item-transactions"
+}
+var options2 = {
+	file_name: 'Items Register Detail.csv',
+	type: "item-register-detail"
+}
+
+csv_parser.parse_csv_file(options2, function (err, output) {
 	print_supplements(output.json, 50);
 	if(err) {
 		console.error(err);

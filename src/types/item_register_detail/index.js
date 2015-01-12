@@ -1,4 +1,5 @@
 var datejs = require('datejs'),
+	process = require('./process'),
 	debugMode = false;
 
 function sanitize_csv_string(str, start, max) {
@@ -7,15 +8,15 @@ function sanitize_csv_string(str, start, max) {
 		row,
 		item;
 	function match_records(columns) {
-		if (columns[0] !== "") {
+		if (row.length === 2 && columns[0] !== "") {
 			item = {
 				id: columns[0],
 				name: columns[1]
 			};
 			return "";
 		} else if (item) {
-			columns[0] = item.id;
-			columns[1] = item.name;
+			columns.unshift(item.name);
+			columns.unshift(item.id);
 		}
 		return (columns.join) ? columns.join(',') : "";
 	}
@@ -25,7 +26,8 @@ function sanitize_csv_string(str, start, max) {
 	for (i = start; i < max; i += 1) {
 		row = str[i];
 		if (row.length && row.indexOf(',,,') !== 0) {
-			row = match_records(row.split(','));
+			row = row.split(',');
+			row = match_records(row);
 			if (row.length) {
 				line_array.push(row);
 			}
@@ -46,11 +48,17 @@ function processTable(arr) {
 			records: []
 		};
 		//pn,ID#,Src,Date,Memo,Debit,Credit
+		//Date,Src,ID#,Memo,Starting Qty,Qty Changed,Amount,On Hand,Current Value,Master Item 
 		s.transactions = s.records.push({
 			date: Date.parse(obj["Date"]),
 			memo: obj["Memo"],
-			debit: obj["Credit"],
-			credit: obj["Debit"]
+			src: obj["Src"],
+			invoice: obj["Inv#"],
+			startQty: obj["Starting Qty"],
+			changeQty: obj["Qty Changed"],
+			onHand: obj["On Hand"],
+			currentValue: obj["Current Value"],
+			masterItem: obj["Master Item"]
 		});
 		items[obj.pn] = s;
 	}
@@ -64,8 +72,7 @@ module.exports = function (data, callback) {
 	var parse = require('csv-parse'),
 		json,
 		inventory_json;
-
-	data.sanitized_csv_string =	"pn" + sanitize_csv_string(data.csv_str, 10).join("\n")
+	data.sanitized_csv_string =	"pn,ID#," + sanitize_csv_string(data.csv_str.replace("ID#", "Inv#"), 10).join("\n");
 	parse(data.sanitized_csv_string, { columns: true }, function(err, output) {
 		if (err) {
 			console.error(err);
