@@ -1,4 +1,5 @@
 var datejs = require('datejs'),
+	process = require('./process'),
 	debugMode = false;
 
 function sanitize_csv_string(str, start, max) {

@@ -1,5 +1,4 @@
 var datejs = require('datejs'),
-	process = require('./process'),
 	debugMode = false;
 
 function sanitize_csv_string(str, start, max) {
@@ -65,7 +64,7 @@ function processTable(arr) {
 	for (i = 0; i < l; i += 1) {
 		addItem(arr[i]);
 	}
-	return process(items);
+	return items;
 }
 
 module.exports = function (data, callback) {

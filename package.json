@@ -14,5 +14,8 @@
     "jsonfile": "^2.0.0",
     "read-file": "^0.1.2",
     "shallow-extend": "0.0.1"
+  },
+  "devDependencies": {
+    "minimist": "^1.1.0"
   }
 }

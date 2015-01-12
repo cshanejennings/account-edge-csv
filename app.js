@@ -1,5 +1,6 @@
 var csv_parser = require('./src/index.js'),
 	debugMode = true,
+	argv = require('minimist')(process.argv.slice(2)),
 	config = {
 		write_folder: "./tmp/"
 	};
@@ -16,16 +17,31 @@ function print_supplements(supplements, threshold, count) {
 		}
 	}
 }
-var options1 = {
-	file_name: 'Item Transactions.csv',
-	type: "item-transactions"
-}
-var options2 = {
-	file_name: 'Items Register Detail.csv',
-	type: "item-register-detail"
+
+function addParam(arr, obj) {
+	return obj[arr.shift()] = arr.pop() || true;
 }
 
-csv_parser.parse_csv_file(options2, function (err, output) {
+var options = (function(args) {
+	var i,
+		opts = {};
+	if (args.length > 0) {
+		for (i = 0; i < args.length; i += 1) {
+			addParam(args[i].split("="), opts);
+		}
+	}
+	return opts;
+}(argv._));
+
+if (!options.hasOwnProperty("file_name")) {
+	throw 'set file_name parameter as the file name for the csv for parsing, ex: file_name="Item Transactions.csv"';
+}
+
+if (!options.hasOwnProperty("type")) {
+	throw 'set type parameter to select the csv parser you wish to use with this csv file, ex: type="item-transactions"';
+}
+
+csv_parser.parse_csv_file(options, function (err, output) {
 	print_supplements(output.json, 50);
 	if(err) {
 		console.error(err);
