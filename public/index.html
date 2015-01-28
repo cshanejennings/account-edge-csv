@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    
+    <link rel="stylesheet" href="libs/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="libs/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="styles/tableStyle.css" />
+
+    <script src="libs/jquery.1.10.4.js"></script>
+    <script src="libs/jquery.datatables.1.10.4.js"></script>
+    <script src="libs/jquery.datatables.tabletools.min.js"></script>
+
+    <script src="libs/jquery.simplemodal.1.4.4.js"></script>
+    <link rel="stylesheet" href="styles/basic.css" />
+
+
+    <script src="count.js"></script>
+    <style>
+        #modal {
+            width: 1000px;
+        }
+    </style>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </head>
+  <body>
+
+    <div id="supplement-history-modal">
+      <h3>Supplement History Detail</h3>
+      <table id="supplement_history_chart">
+        <thead><tr>
+          <th>date</th>
+          <th>qty</th>
+          <th>change</th>
+        </tr></thead>
+      </table>
+      <div id="supplement_history_graph"></div>
+    </div>
+
+    <table id="chart">
+      <thead>
+        <tr>
+          <th>id</th>
+          <th>pn</th>
+          <th>transactions</th>
+          <th>onHand</th>
+          <th>bought</th>
+          <th>sold</th>
+        </tr>
+      </thead>
+    </table>
+  </body>
+</html>

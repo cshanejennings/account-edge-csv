@@ -2,7 +2,7 @@ var csv_parser = require('./src/index.js'),
 	debugMode = true,
 	argv = require('minimist')(process.argv.slice(2)),
 	config = {
-		write_folder: "./tmp/"
+		write_folder: "./public/data/"
 	};
 
 function print_supplements(supplements, threshold, count) {
@@ -32,7 +32,6 @@ var options = (function(args) {
 	}
 	return opts;
 }(argv._));
-
 if (!options.hasOwnProperty("file_name")) {
 	throw 'set file_name parameter as the file name for the csv for parsing, ex: file_name="Item Transactions.csv"';
 }
@@ -40,6 +39,8 @@ if (!options.hasOwnProperty("file_name")) {
 if (!options.hasOwnProperty("type")) {
 	throw 'set type parameter to select the csv parser you wish to use with this csv file, ex: type="item-transactions"';
 }
+// node app file_name="Item Transactions.csv" type=item-transactions
+// node app Item Transactions.csv type=item-register-detail
 
 csv_parser.parse_csv_file(options, function (err, output) {
 	print_supplements(output.json, 50);
