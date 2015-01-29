@@ -14,7 +14,10 @@
     <script src="libs/jquery.simplemodal.1.4.4.js"></script>
     <link rel="stylesheet" href="styles/basic.css" />
 
+    <script src="libs/d3.min.js"></script>
 
+    <script src="itemTable.js"></script>
+    <script src="itemChart.js"></script>
     <script src="count.js"></script>
     <style>
         #modal {
@@ -29,28 +32,29 @@
       <h3>Supplement History Detail</h3>
       <table id="supplement_history_chart">
         <thead><tr>
-            <th>date</th>
-            <th>src</th>
-            <th>memo</th>
-            <th>onHand</th>
-            <th>changeQty</th>
-            <th>startQty</th>
+            <th class="date_cell">date</th>
+            <th class="smText_cell">src</th>
+            <th class="memo_cell">memo</th>
+            <th class="smNumber_cell">onHand</th>
+            <th class="smNumber_cell">changeQty</th>
+            <th class="smNumber_cell">startQty</th>
         </tr></thead>
       </table>
       <div id="supplement_history_graph"></div>
     </div>
-
-    <table id="chart">
-      <thead>
-        <tr>
-          <th>id</th>
-          <th>pn</th>
-          <th>transactions</th>
-          <th>onHand</th>
-          <th>bought</th>
-          <th>sold</th>
-        </tr>
-      </thead>
-    </table>
+    <div class="primary">
+      <table id="items">
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>pn</th>
+            <th>transactions</th>
+            <th>onHand</th>
+            <th>bought</th>
+            <th>sold</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
   </body>
 </html>

@@ -1,4 +1,4 @@
-(function ($) {
+(function ($, createRecordTable, createRecordChart) {
     "use strict";
 
     function print_supplements(json) {
@@ -45,7 +45,7 @@
                 records: row.records
             });
         }
-        $('#chart').dataTable({
+        $('#items').dataTable({
             aaData: table,
             aoColumns: [
                 { mData: 'id' },
@@ -77,42 +77,14 @@
                         nRow.removeClass("checked");
                     }
                 }
+                
                 function rowClick(event) {
                     event.stopPropagation();
                     event.stopImmediatePropagation();
                     checked  = !nRow.hasClass("checked");
                     if (checked) {
-                        $("#supplement-history-modal").modal();
-                        $("#supplement_history_chart").dataTable({
-                            aaData: aData.records,
-                            searching: false,
-                            ordering:  false,
-                            lengthChange: false,
-                            columnDefs: [
-                            { title: 'date' },
-                            { title: 'src' },
-                            { title: 'memo' },
-                            { title: 'onHand' },
-                            { title: 'changeQty' },
-                            { title: 'startQty' }
-                        ],
-                            aoColumns: [
-                            { mData: 'date' },
-                            { mData: 'src' },
-                            { mData: 'memo' },
-                            {
-                                mData: 'onHand',
-                                sType: "number"
-                            },
-                            {
-                                mData: 'changeQty',
-                                sType: "number"
-                            },
-                            {
-                                mData: 'startQty',
-                                sType: "number"
-                            }
-                        ]});
+                        createRecordTable(aData.records);
+                        createRecordChart(aData.records);
                     }
                     checkClass();
                 }
@@ -137,4 +109,4 @@
     }
     
     $(initLocal);
-}(jQuery));
+}(jQuery, ItemView, window.ItemChart));

@@ -2,14 +2,48 @@ body {
     font-family: helvetica, arial;
     font-size: 8.5pt;
 }
-.DTTT_container, table {
+
+div.primary .DTTT_container,{
     width: 1000px;
 }
-#supplement_history_chart_wrapper {
+div.primary #supplement_history_chart_wrapper {
     width: 800px;
 }
-div.dataTables_wrapper {
+div.primary div.dataTables_wrapper {
     width: 1000px;
+}
+div.primary .dataTables_info {
+    color: #333 !important;
+}
+.dataTables_info {
+    color: #aaa !important;
+}
+td {
+    color: #333;
+}
+
+
+.dataTables_length,
+.dataTables_filter,
+.dataTables_info {
+    width: 40%;
+}
+.dataTables_filter input {
+    width: 200px;
+}
+
+.dataTables_filter,
+.dataTables_paginate {
+    width: 60%;
+}
+.dataTables_length, .dataTables_filter {
+    color: #aaa;
+}
+div.primary .dataTables_length, .dataTables_filter {
+    color: #333;
+}
+
+div.dataTables_wrapper {
     margin: auto;
 }
 table {
@@ -126,7 +160,6 @@ A.DTTT_button:hover {
 .dataTables_length, .dataTables_filter {
     box-sizing: border-box;
     margin: 5px 0 10px 0;
-    width: 400px;
     height: 30px;
     line-height: 30px;
     padding: 0px 20px;
@@ -141,15 +174,14 @@ A.DTTT_button:hover {
     background: -ms-linear-gradient(top,  #e0e0e0 0%,#adadad 100%); /* IE10+ */
     background: linear-gradient(to bottom,  #e0e0e0 0%,#adadad 100%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e0e0e0', endColorstr='#adadad',GradientType=0 ); /* IE6-8 */
-    color: #333;
 }
 .dataTables_length {
     -webkit-border-top-left-radius: 5px;
     -moz-border-radius-topleft: 5px;
     border-top-left-radius: 5px;
 }
+
 .dataTables_filter {
-    width: 600px;
     float: left;
     text-align: right;
     -webkit-border-top-right-radius: 5px;
@@ -157,11 +189,7 @@ A.DTTT_button:hover {
     border-top-right-radius: 5px;   
 }
 .dataTables_filter input {
-    width: 200px;
     margin-left: 20px;
-}
-.dataTables_info {
-    width: 300px;
 }
 .dataTables_info, .dataTables_paginate {
     box-sizing: border-box;
@@ -171,11 +199,8 @@ A.DTTT_button:hover {
     border-bottom: double 3px #ccc;
     margin: 0 0 30px 0;
 }
-.dataTables_info {
-    width: 300px;
-}
+
 .dataTables_paginate {
-    width: 700px;
     text-align: right;
     padding-right: 20px;
     font-weight: bold;

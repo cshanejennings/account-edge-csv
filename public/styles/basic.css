@@ -1,12 +1,48 @@
+
+/* Solarized Palette - http://ethanschoonover.com/solarized ---------
+  lightgray      : #819090;
+  gray           : #708284;
+  mediumgray     : #536870;
+  darkgray       : #475B62;
+  darkblue       : #0A2933;
+  darkerblue     : #042029;
+  paleryellow    : #FCF4DC;
+  paleyellow     : #EAE3CB;
+  yellow         : #A57706;
+  orange         : #BD3613;
+  red            : #D11C24;
+  pink           : #C61C6F;
+  purple         : #595AB7;
+  blue           : #2176C7;
+  cyan           : #259286;
+  green          : #738A05; */
+ 
+.container {
+  width: 80%;
+  max-width: 1200px;
+  margin: 0 auto;
+  margin-top:10px;
+}
+ 
+ 
+#graphic {
+  margin: 0 auto;
+}
 #supplement-history-modal {display:none;}
 
 /* Overlay */
 #simplemodal-overlay {background-color:#000;}
 
 /* Container */
-#simplemodal-container {height:600px; width:800px; color:#bbb; background-color:#333; border:4px solid #444; padding:12px;}
+#simplemodal-container {height:800px; width:800px; color:#bbb; background-color:#333; border:4px solid #444; padding:12px;}
 #simplemodal-container .simplemodal-data {padding:8px;}
 #simplemodal-container code {background:#141414; border-left:3px solid #65B43D; color:#bbb; display:block; font-size:12px; margin-bottom:12px; padding:4px 6px 6px;}
 #simplemodal-container a {color:#ddd;}
 #simplemodal-container a.modalCloseImg {background:url(../images/x.png) no-repeat; width:25px; height:29px; display:inline; z-index:3200; position:absolute; top:-15px; right:-16px; cursor:pointer;}
 #simplemodal-container h3 {color:#84b8d9;}
+
+
+th.date_cell { width: 150px;}
+th.smText_cell { width: 20px;}
+th.memo_cell { width: 200px;}
+th.smNumber_cell { width: 10px;}
