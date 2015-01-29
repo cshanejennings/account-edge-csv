@@ -5,6 +5,9 @@ body {
 .DTTT_container, table {
     width: 1000px;
 }
+#supplement_history_chart_wrapper {
+    width: 800px;
+}
 div.dataTables_wrapper {
     width: 1000px;
     margin: auto;

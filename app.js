@@ -39,8 +39,8 @@ if (!options.hasOwnProperty("file_name")) {
 if (!options.hasOwnProperty("type")) {
 	throw 'set type parameter to select the csv parser you wish to use with this csv file, ex: type="item-transactions"';
 }
-// node app file_name="Item Transactions.csv" type=item-transactions
-// node app Item Transactions.csv type=item-register-detail
+// node app file_name="Item Transactions.csv" type="item-transactions"
+// node app file_name="Items Register Detail.csv" type="item-register-detail"
 
 csv_parser.parse_csv_file(options, function (err, output) {
 	print_supplements(output.json, 50);
