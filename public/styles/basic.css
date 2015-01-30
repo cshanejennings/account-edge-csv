@@ -23,7 +23,9 @@
   margin: 0 auto;
   margin-top:10px;
 }
- 
+#chart_tooltip {
+  z-index: 999999999999999;
+}
  
 #graphic {
   margin: 0 auto;

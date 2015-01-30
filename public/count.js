@@ -83,8 +83,8 @@
                     event.stopImmediatePropagation();
                     checked  = !nRow.hasClass("checked");
                     if (checked) {
-                        createRecordTable(aData.records);
-                        createRecordChart(aData.records);
+                        var table = createRecordTable(aData.records);
+                        var chart = createRecordChart(aData.records, table);
                     }
                     checkClass();
                 }

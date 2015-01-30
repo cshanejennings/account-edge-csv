@@ -12,10 +12,17 @@ div.primary #supplement_history_chart_wrapper {
 div.primary div.dataTables_wrapper {
     width: 1000px;
 }
-div.primary .dataTables_info {
+.dataTables_info {
+    color: #ddd !important;
+}
+div.primary .dataTables_info,
+div.primary .dataTables_paginate,
+div.primary .paginate_button {
     color: #333 !important;
 }
-.dataTables_info {
+.paginate_button,
+.dataTables_info,
+.dataTables_paginate {
     color: #aaa !important;
 }
 td {
