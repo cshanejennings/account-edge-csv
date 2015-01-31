@@ -68,7 +68,7 @@ var ItemChart = (function (d3, $) {
 
                 tooltip.transition()
                     .style('opacity', 0.9);
-                tooltip.html(d.date.toString("MMM-dd-yyyy"))
+                tooltip.html(d.displayDate)
                     .style('left', (d3.event.pageX - 35) + 'px')
                     .style('top',  (d3.event.pageY - 30) + 'px');
 
@@ -88,7 +88,6 @@ var ItemChart = (function (d3, $) {
             })
             .on('click', function (d, i) {
                 console.log(d, i);
-                debugger;
                 table.displayRow(i);
             });
 

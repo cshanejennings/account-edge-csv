@@ -1,50 +1,94 @@
 (function ($, createRecordTable, createRecordChart) {
     "use strict";
 
+    function getPurchasingVolume(records, days) {
+        var ol = records.length,
+            l = ol,
+            list = [],
+            highest = 0;
+        // Add in calculations for avg sold and avg bought over time period
+        function testRecord(record, timeWindow) {
+            var len,
+                comp,
+                start = record.date,
+                finish = new Date(record.date).addDays(timeWindow),
+                period = [],
+                count = 0;
+            for (len = l - 2; len > 0; len -= 1) {
+                comp = records[len];
+                if (comp.date.between(start, finish) && record.changeQty < 0) {
+                    count -= record.changeQty;
+                    period.push(-record.changeQty);
+                }
+            }
+            if (highest < count) {
+                highest = count;
+            }
+            if (period.length) {
+                list.push(period.reduce(function(p, c) { return p + c; }));
+            } else {
+                list.push(0);
+            }
+        }
+        for (l = records.length; l > 0; l  -= 1) {
+            testRecord(records.pop(), days);
+        }
+        var avg = (function (li) {
+            if (!li.length) {
+                return 0;
+            }
+            return Math.round(li.reduce(function(a, b) { return a + b; }) / list.length);
+        }(list.concat()));
+        return {
+            peak: highest,
+            avg: avg
+        };
+    }
+
+    function processRecords(records) {
+        var i, l = records.length,
+            record;
+        for (i = 0; i < l; i += 1) {
+            record = records[i];
+            record.changeQty = Number(record.changeQty);
+            record.date = new Date(record.date);
+            record.displayDate = record.date.toString("MMM-dd-yyyy");
+        }
+        if (records.length > 100) {
+            window.testRecords= records.concat();
+        }
+        return records;
+    }
+
     function print_supplements(json) {
         var table = [],
             result,
             row,
             item;
-        function processRecords(records) {
-            records = records.concat().reverse();
-            var record,
-                changeQty,
-                result = {
-                    startQty: 0,
-                    bought: 0,
-                    sold: 0,
-                    onHand: 0,
-                    changeQty: 0
-                };
-            while (records.length) {
-                record = records.pop();
-                changeQty = Number(record.changeQty);
-                if (!isNaN(changeQty)) {
-                    if (changeQty > 0) {
-                        result.sold += changeQty;
-                    } else {
-                        result.bought -= changeQty;
-                    }
-                }
-                result.onHand = record.onHand;
-            }
-            return result;
-        }
         for (item in json) {
             row = json[item];
-            result = processRecords(row.records);
-
+            row.records = processRecords(row.records);
+            if (row.pn === "Royal Jelly") {
+                debugger;
+            }
+            row.purchaseVolume = getPurchasingVolume(row.records.concat().reverse(), 30);
+            if (row.pn === "Royal Jelly") {
+                console.log(row.purchaseVolume.avg, row.purchaseVolume.peak);
+            }
+            
             table.push({
                 id: item,
                 pn: row.pn,
                 transactions: Number(row.transactions),
-                onHand: Number(result.onHand),
-                bought: Number(result.bought),
-                sold: Number(result.sold),
+                peak: Number(row.purchaseVolume.peak),
+                avg: Number(row.purchaseVolume.avg),
+                onHand: Number(row.onHand),
+                bought: Number(row.bought),
+                sold: Number(row.sold),
                 records: row.records
             });
         }
+        
         $('#items').dataTable({
             aaData: table,
             aoColumns: [
@@ -52,6 +96,14 @@
                 { mData: 'pn' },
                 {
                     mData: 'transactions',
+                    sType: "number"
+                },
+                {
+                    mData: 'peak',
+                    sType: "number"
+                },
+                {
+                    mData: 'avg',
                     sType: "number"
                 },
                 {
