@@ -1,4 +1,4 @@
-var ItemChart = (function (d3, $) {
+var ItemChart = (function (_, d3, $) {
     return function createRowChart(bardata, table) {
 //        $("#chart").html('');
         bardata = bardata.map(function(r) {
@@ -142,4 +142,4 @@ var ItemChart = (function (d3, $) {
     hGuide.selectAll('line')
         .style({ stroke: "#000"});
     };
-}(d3, window.jQuery));
+}(window._, d3, window.jQuery));

@@ -1,47 +1,70 @@
-(function ($, createRecordTable, createRecordChart) {
+(function (_, $, jStat, createRecordTable, createRecordChart) {
     "use strict";
+    function getDateRange(records, defaultValues) {
+        var dates = _.pluck(records, "date"),
+            min = jStat.min(dates),
+            now = new Date("today"),
+            range = [],
+            date;
+        //debugger;
+        return range;
+    }
 
-    function getPurchasingVolume(records, days) {
-        var ol = records.length,
+    // I need to create a date range for the supplements
+    // the result will be a date range that will display 
+    function getPurchasingVolume(records, timeWindow) {
+        var dateRange = getDateRange(records),
+            ol = records.length,
             l = ol,
             list = [],
-            highest = 0;
+            period = {
+                max: 0, // sales
+                avgSold: 0
+            };
         // Add in calculations for avg sold and avg bought over time period
-        function testRecord(record, timeWindow) {
-            var len,
-                comp,
-                start = record.date,
-                finish = new Date(record.date).addDays(timeWindow),
-                period = [],
-                count = 0;
-            for (len = l - 2; len > 0; len -= 1) {
-                comp = records[len];
-                if (comp.date.between(start, finish) && record.changeQty < 0) {
-                    count -= record.changeQty;
-                    period.push(-record.changeQty);
+        // avg purchase
+        // avg on hand
+        // avg sold
+        // This tests the timewindow for a particular record against the other
+        // records to see how many purchases happened in the following x days
+        function testRecord(record) {
+            var r,
+                tw = { // time window
+                    //first date of time window
+                    s: record.date,
+                    // last date of time window
+                    f: moment(record.date).add(timeWindow, 'days')._d,
+                    // period sales
+                    ps: [],
+                    // period purchases
+                    pp: [],
+                    // total sold in period
+                    ts: 0,
+                    // total purchased in period
+                    tp: 0
+                },
+                range = moment().range(tw.s, tw.f);
+            function compareRecord(date)  {
+                if (range.contains(date) && record.changeQty < 0) {
+                    tw.ps.push(-record.changeQty);
+                } else {
+                    tw.pp.push(record.changeQty);
                 }
             }
-            if (highest < count) {
-                highest = count;
+            for (r = l - 2; r > 0; r -= 1) {
+                compareRecord(records[r].date);
             }
-            if (period.length) {
-                list.push(period.reduce(function(p, c) { return p + c; }));
-            } else {
-                list.push(0);
-            }
+            tw.ts = jStat.max(tw.ts);
+            period.max = jStat.max([period.max, tw.ts]);
+            list.push(jStat.sum(tw.ps));
         }
         for (l = records.length; l > 0; l  -= 1) {
-            testRecord(records.pop(), days);
+            testRecord(records.pop());
         }
-        var avg = (function (li) {
-            if (!li.length) {
-                return 0;
-            }
-            return Math.round(li.reduce(function(a, b) { return a + b; }) / list.length);
-        }(list.concat()));
+        period.avgSold = Math.round(jStat.sum(list) / list.length);
         return {
-            peak: highest,
-            avg: avg
+            peak: period.max,
+            avgSold: period.avgSold
         };
     }
 
@@ -52,7 +75,7 @@
             record = records[i];
             record.changeQty = Number(record.changeQty);
             record.date = new Date(record.date);
-            record.displayDate = record.date.toString("MMM-dd-yyyy");
+            record.displayDate = moment(record.date).format("MMM-DD-YYYY");
         }
         if (records.length > 100) {
             window.testRecords= records.concat();
@@ -71,17 +94,17 @@
             if (row.pn === "Royal Jelly") {
                 debugger;
             }
-            row.purchaseVolume = getPurchasingVolume(row.records.concat().reverse(), 30);
+            row.purchaseSummary = getPurchasingVolume(row.records.concat().reverse(), 30);
             if (row.pn === "Royal Jelly") {
-                console.log(row.purchaseVolume.avg, row.purchaseVolume.peak);
+                console.log(row.purchaseSummary.avgSold, row.purchaseSummary.peak);
             }
             
             table.push({
                 id: item,
                 pn: row.pn,
                 transactions: Number(row.transactions),
-                peak: Number(row.purchaseVolume.peak),
-                avg: Number(row.purchaseVolume.avg),
+                peak: Number(row.purchaseSummary.peak),
+                avgSold: Number(row.purchaseSummary.avgSold),
                 onHand: Number(row.onHand),
                 bought: Number(row.bought),
                 sold: Number(row.sold),
@@ -103,7 +126,7 @@
                     sType: "number"
                 },
                 {
-                    mData: 'avg',
+                    mData: 'avgSold',
                     sType: "number"
                 },
                 {
@@ -161,4 +184,4 @@
     }
     
     $(initLocal);
-}(jQuery, ItemView, window.ItemChart));
+}(window._, jQuery, window.jStat, ItemView, window.ItemChart));

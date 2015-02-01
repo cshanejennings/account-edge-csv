@@ -12,10 +12,14 @@
     "csv-parse": "0.0.6",
     "datejs": "^1.0.0-rc3",
     "jsonfile": "^2.0.0",
+    "lodash": "^3.0.1",
+    "moment": "^2.9.0",
+    "moment-range": "^1.0.5",
     "read-file": "^0.1.2",
     "shallow-extend": "0.0.1"
   },
   "devDependencies": {
+    "jStat": "^1.1.2",
     "minimist": "^1.1.0"
   }
 }
