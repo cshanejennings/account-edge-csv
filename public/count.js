@@ -1,5 +1,15 @@
 (function (_, $, jStat, createRecordTable, createRecordChart) {
     "use strict";
+    _.mixin({
+        toArrayFromObj: function (object, keyName)
+        {
+            return _(object).keys().map(function (item)
+            {
+                object[item][keyName] = item;
+                return object[item];
+            }).value();
+        }
+    });
     /*
         data {
             hash: {
@@ -22,7 +32,6 @@
             days = stop.diff(start, "days"),
             range = {};
         _.times(days + 1, function(n) {
-
             var date = moment(start).add(n, 'days');
             table.list.push(date);
             table.hash[date.format("YYYY-MM-DD")] = {
@@ -34,6 +43,7 @@
         });
         return table;
     }
+
     var dataTable = getDateTable(
             moment("2014 01 01", "YYYY MM DD")._d,
             moment("2014 12 31", "YYYY MM DD")._d
@@ -55,8 +65,7 @@
 
     function getDateTotalsForItem(records) {
         records = records.concat();
-        var dateCache = _.cloneDeep(dataTable.hash),
-            dateIndex = dataTable.length;
+        var dateCache = _.cloneDeep(dataTable.hash);
         function moveRecordToDate(record) {
             var date = dateCache[moment(record.date).format("YYYY-MM-DD")];
             if (!date) { return; }
@@ -70,103 +79,43 @@
         while(records.length > 0) {
             moveRecordToDate(records.pop());
         }
+        dateCache = _.keys(dateCache).map(function (dateString) {
+            dateCache[dateString].date = dateString;
+            return dateCache[dateString];
+        });
         return dateCache;
     }
-
+    function getAvgOfEl(arr, ele) {
+        return Math.round(jStat.sum(_.pluck(arr, ele)) / arr.length * 100) / 100;
+    }
 
     // This function receives a list of records containing:
     //      date
     //      changeQty - amount is negative if sold, positive if purchased
     //      onHandQty
-    function getRecordPurchasingInfo(records, timeWindow) {
+    function getRecordStats(records, period) {
         var dateTotals = getDateTotalsForItem(records),
-            l = dateTotals.length,
-            avg = {
-                bought: 0,
-                sold: 0,
-                onHand: 0
-            };
-        function getRecordInfo(start, finish) {
-            var avg = {
-                    bought: 0,
-                    sold: 0,
-                    onHand: 0
-                },
-                date;
-            while (start > finish) {
-                date = dateTotals[start];
-                avg.bought += date.bought;
-                avg.sold += date.sold;
-                avg.onHand += date.onHand;
-                start -= 1;
-            }
-            avg.bought = Math.ceil(avg.bought / timeWindow);
-            avg.sold = Math.ceil(avg.sold / timeWindow);
-            avg.onHand = Math.ceil(avg.onHand / timeWindow);
+            l = testRangeLength;
+        function getDateMetrics(start, finish) {
+            
+            start = (start > 0) ? start : 0;
+            var arr = dateTotals.slice(start, finish),
+                date = dateTotals[finish];
+            date.avgBought = getAvgOfEl(arr, "bought") || 0;
+            date.avgSold = getAvgOfEl(arr, "bought") || 0;
+            date.avgOnHand = getAvgOfEl(arr, "onHand") || 0;
         }
         while (l > 0) {
             l -= 1;
-            getRecordInfo(dateTotals[l]);
+            getDateMetrics(l - period, l);
         }
-        
-    }
-
-    // I need to create a date range for the supplements
-    // the result will be a date range that will display 
-    function getPurchasingVolume(records, timeWindow) {
-        var dateRange = getDateRange(records),
-            ol = records.length,
-            l = ol,
-            list = [],
-            period = {
-                max: 0, // sales
-                avgSold: 0
-            };
-        // Add in calculations for avg sold and avg bought over time period
-        // avg purchase
-        // avg on hand
-        // avg sold
-        // This tests the timewindow for a particular record against the other
-        // records to see how many purchases happened in the following x days
-        function testRecord(record) {
-            var r,
-                tw = { // time window
-                    //first date of time window
-                    s: record.date,
-                    // last date of time window
-                    f: moment(record.date).add(timeWindow, 'days')._d,
-                    // period sales
-                    ps: [],
-                    // period purchases
-                    pp: [],
-                    // total sold in period
-                    ts: 0,
-                    // total purchased in period
-                    tp: 0
-                },
-                range = moment().range(tw.s, tw.f);
-
-            function compareRecord(date)  {
-                if (range.contains(date) && record.changeQty < 0) {
-                    tw.ps.push(-record.changeQty);
-                } else {
-                    tw.pp.push(record.changeQty);
-                }
-            }
-            for (r = l - 2; r > 0; r -= 1) {
-                compareRecord(records[r].date);
-            }
-            tw.ts = jStat.max(tw.ts);
-            period.max = jStat.max([period.max, tw.ts]);
-            list.push(jStat.sum(tw.ps));
-        }
-        for (l = records.length; l > 0; l  -= 1) {
-            testRecord(records.pop());
-        }
-        period.avgSold = Math.round(jStat.sum(list) / list.length);
         return {
-            peak: period.max,
-            avgSold: period.avgSold
+            totals: {
+                bought: getAvgOfEl(dateTotals, "avgBought"),
+                sold: getAvgOfEl(dateTotals, "avgSold"),
+                onHand: getAvgOfEl(dateTotals, "avgOnHand"),
+            },
+            dates: dateTotals
         };
     }
 
@@ -190,28 +139,20 @@
             result,
             row,
             item,
+            stats,
             testCount = 10;
         for (item in json) {
             row = json[item];
             row.records = processRecords(row.records);
-            if (row.pn === "Royal Jelly") {
-                //debugger;
-            }
-            row.purchaseSummary = getPurchasingVolume(row.records.concat().reverse(), 30);
-            if (testCount > 0) {
-                getRecordPurchasingInfo(row.records.concat().reverse(), 30);
-            }
-            testCount--;
-            if (row.pn === "Royal Jelly") {
-                console.log(row.purchaseSummary.avgSold, row.purchaseSummary.peak);
-            }
+            row.purchaseSummary = { peak: 0, avgSold: 0 };
+            stats = getRecordStats(row.records.concat().reverse(), 30);
             
             table.push({
                 id: item,
                 pn: row.pn,
                 transactions: Number(row.transactions),
                 peak: Number(row.purchaseSummary.peak),
-                avgSold: Number(row.purchaseSummary.avgSold),
+                avgSold: Number(stats.totals.sold),
                 onHand: Number(row.onHand),
                 bought: Number(row.bought),
                 sold: Number(row.sold),
