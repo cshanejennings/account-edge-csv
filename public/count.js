@@ -78,9 +78,37 @@
     //      date
     //      changeQty - amount is negative if sold, positive if purchased
     //      onHandQty
-    function getNewPurchasingVolume(records, timeWindow) {
-        var dateTotals = getDateTotalsForItem(records);
-        debugger;
+    function getRecordPurchasingInfo(records, timeWindow) {
+        var dateTotals = getDateTotalsForItem(records),
+            l = dateTotals.length,
+            avg = {
+                bought: 0,
+                sold: 0,
+                onHand: 0
+            };
+        function getRecordInfo(start, finish) {
+            var avg = {
+                    bought: 0,
+                    sold: 0,
+                    onHand: 0
+                },
+                date;
+            while (start > finish) {
+                date = dateTotals[start];
+                avg.bought += date.bought;
+                avg.sold += date.sold;
+                avg.onHand += date.onHand;
+                start -= 1;
+            }
+            avg.bought = Math.ceil(avg.bought / timeWindow);
+            avg.sold = Math.ceil(avg.sold / timeWindow);
+            avg.onHand = Math.ceil(avg.onHand / timeWindow);
+        }
+        while (l > 0) {
+            l -= 1;
+            getRecordInfo(dateTotals[l]);
+        }
+        
     }
 
     // I need to create a date range for the supplements
@@ -161,7 +189,8 @@
         var table = [],
             result,
             row,
-            item;
+            item,
+            testCount = 10;
         for (item in json) {
             row = json[item];
             row.records = processRecords(row.records);
@@ -169,7 +198,10 @@
                 //debugger;
             }
             row.purchaseSummary = getPurchasingVolume(row.records.concat().reverse(), 30);
-            getNewPurchasingVolume(row.records.concat().reverse(), 30);
+            if (testCount > 0) {
+                getRecordPurchasingInfo(row.records.concat().reverse(), 30);
+            }
+            testCount--;
             if (row.pn === "Royal Jelly") {
                 console.log(row.purchaseSummary.avgSold, row.purchaseSummary.peak);
             }
