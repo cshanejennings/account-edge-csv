@@ -1,13 +1,86 @@
 (function (_, $, jStat, createRecordTable, createRecordChart) {
     "use strict";
-    function getDateRange(records, defaultValues) {
+    /*
+        data {
+            hash: {
+                sold: 0,
+                bought: 0,
+                onHand
+            },
+            list: [] // <moment>
+        }
+
+    */
+    function getDateTable(start, stop) {
+        start = moment(start);
+        stop = (stop)? moment(stop): moment({hour: 0});
+        var table = {
+                hash: {},
+                list: [],
+                length: 0
+            },
+            days = stop.diff(start, "days"),
+            range = {};
+        _.times(days + 1, function(n) {
+
+            var date = moment(start).add(n, 'days');
+            table.list.push(date);
+            table.hash[date.format("YYYY-MM-DD")] = {
+                sold: 0,
+                bought: 0,
+                onHand: 0
+            };
+            table.length += 1;
+        });
+        return table;
+    }
+    var dataTable = getDateTable(
+            moment("2014 01 01", "YYYY MM DD")._d,
+            moment("2014 12 31", "YYYY MM DD")._d
+        );
+    var testRangeLength = dataTable.length;
+
+    function getDateRange(records, defaultValues, max) {
+        max = (max)? moment(max): moment({hour: 0});
         var dates = _.pluck(records, "date"),
-            min = jStat.min(dates),
-            now = new Date("today"),
-            range = [],
+            start = moment(jStat.min(dates)),
+            days = max.diff(start, "days"),
+            range = [start._d],
             date;
-        //debugger;
+        _.times(days, function(n) {
+            range.push(moment(start).add(n, 'days')._d);
+        });
         return range;
+    }
+
+    function getDateTotalsForItem(records) {
+        records = records.concat();
+        var dateCache = _.cloneDeep(dataTable.hash),
+            dateIndex = dataTable.length;
+        function moveRecordToDate(record) {
+            var date = dateCache[moment(record.date).format("YYYY-MM-DD")];
+            if (!date) { return; }
+            if (record.changeQty > 0) {
+                date.sold += Number(record.changeQty);
+            } else {
+                date.bought -= Number(record.changeQty);
+            }
+            date.onHand += Number(record.onHand);
+        }
+        while(records.length > 0) {
+            moveRecordToDate(records.pop());
+        }
+        return dateCache;
+    }
+
+
+    // This function receives a list of records containing:
+    //      date
+    //      changeQty - amount is negative if sold, positive if purchased
+    //      onHandQty
+    function getNewPurchasingVolume(records, timeWindow) {
+        var dateTotals = getDateTotalsForItem(records);
+        debugger;
     }
 
     // I need to create a date range for the supplements
@@ -44,6 +117,7 @@
                     tp: 0
                 },
                 range = moment().range(tw.s, tw.f);
+
             function compareRecord(date)  {
                 if (range.contains(date) && record.changeQty < 0) {
                     tw.ps.push(-record.changeQty);
@@ -92,9 +166,10 @@
             row = json[item];
             row.records = processRecords(row.records);
             if (row.pn === "Royal Jelly") {
-                debugger;
+                //debugger;
             }
             row.purchaseSummary = getPurchasingVolume(row.records.concat().reverse(), 30);
+            getNewPurchasingVolume(row.records.concat().reverse(), 30);
             if (row.pn === "Royal Jelly") {
                 console.log(row.purchaseSummary.avgSold, row.purchaseSummary.peak);
             }
