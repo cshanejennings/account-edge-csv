@@ -10,17 +10,7 @@
             }).value();
         }
     });
-    /*
-        data {
-            hash: {
-                sold: 0,
-                bought: 0,
-                onHand
-            },
-            list: [] // <moment>
-        }
 
-    */
     function getDateTable(start, stop) {
         start = moment(start);
         stop = (stop)? moment(stop): moment({hour: 0});
@@ -105,7 +95,7 @@
             var arr = dateTotals.slice(start, finish),
                 date = dateTotals[finish];
             date.avgBought = getAvgOfEl(arr, "bought", period) || 0;
-            date.avgSold = getAvgOfEl(arr, "bought", period) || 0;
+            date.avgSold = getAvgOfEl(arr, "sold", period) || 0;
             date.avgOnHand = getAvgOfEl(arr, "onHand") || 0;
         }
         while (l > 0) {
@@ -147,7 +137,6 @@
         for (item in json) {
             row = json[item];
             row.records = processRecords(row.records);
-            row.purchaseSummary = { peak: 0, avgSold: 0 };
             stats = getRecordStats(row.records.concat().reverse(), 30);
             
             table.push({
@@ -155,6 +144,7 @@
                 pn: row.pn,
                 transactions: Number(row.transactions),
                 avgInv: Number(stats.period.onHand),
+                avgBought: Number(stats.period.bought),
                 avgSold: Number(stats.period.sold),
                 onHand: Number(row.onHand),
                 bought: Number(row.bought),
@@ -170,6 +160,10 @@
                 { mData: 'pn' },
                 {
                     mData: 'transactions',
+                    sType: "number"
+                },
+                {
+                    mData: 'avgBought',
                     sType: "number"
                 },
                 {
