@@ -7,16 +7,6 @@
         createRecordChart
     ) {
     "use strict";
-    _.mixin({
-        toArrayFromObj: function (object, keyName)
-        {
-            return _(object).keys().map(function (item)
-            {
-                object[item][keyName] = item;
-                return object[item];
-            }).value();
-        }
-    });
 
     function getDateTable(start, stop) {
         start = moment(start);
@@ -114,7 +104,8 @@
     //      onHandQty
     function getRecordStats(records, period) {
         var dateTotals = getDateTotalsForItem(records),
-            l = testRangeLength;
+            l = testRangeLength,
+            derived;
         function getDateMetrics(start, finish) {
             if (finish - start < 0) {
                 finish = period;
@@ -130,12 +121,16 @@
             l -= 1;
             getDateMetrics(l - period, l);
         }
+        derived = {
+            bought: getAvgOfEl(dateTotals, "avgBought"),
+            sold: getAvgOfEl(dateTotals, "avgSold"),
+            onHand: getAvgOfEl(dateTotals, "avgOnHand"),
+        };
+        console.log("?");
+        derived.inventoryToSales = Math.round(period.onHand / period.sold * 100) / 100;
+        console.log(period.inventoryToSales);
         return {
-            period: {
-                bought: getAvgOfEl(dateTotals, "avgBought"),
-                sold: getAvgOfEl(dateTotals, "avgSold"),
-                onHand: getAvgOfEl(dateTotals, "avgOnHand"),
-            },
+            period: derived,
             dates: dateTotals
         };
     }
@@ -148,9 +143,6 @@
             record.changeQty = Number(record.changeQty);
             record.date = new Date(record.date);
             record.displayDate = moment(record.date).format("MMM-DD-YYYY");
-        }
-        if (records.length > 100) {
-            window.testRecords= records.concat();
         }
         return records;
     }
@@ -174,6 +166,7 @@
                 id: item,
                 pn: row.pn,
                 transactions: Number(row.transactions),
+                inventoryToSales: Number(stats.period.inventoryToSales),
                 avgInv: Number(stats.period.onHand),
                 avgBought: Number(stats.period.bought),
                 avgSold: Number(stats.period.sold),

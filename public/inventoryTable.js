@@ -14,6 +14,10 @@ var InventoryTable = (function (
                     sType: "number"
                 },
                 {
+                    mData: 'inventoryToSales',
+                    sType: "number"
+                },
+                {
                     mData: 'avgBought',
                     sType: "number"
                 },
