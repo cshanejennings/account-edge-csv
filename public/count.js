@@ -76,10 +76,31 @@
         while(records.length > 0) {
             moveRecordToDate(records.pop());
         }
-        dateCache = _.keys(dateCache).map(function (dateString) {
-            dateCache[dateString].date = dateString;
-            return dateCache[dateString];
-        });
+
+        dateCache = (function () {
+            var lastOnHand = 0,
+                startIndex = 0,
+                startQty = 0,
+                arr = _.keys(dateCache).map(function (dateString, i) {
+                    var date = dateCache[dateString];
+                    date.date = dateString;
+                    if (date.onHand === 0 && date.sold === 0 && date.bought === 0) {
+                        date.onHand = lastOnHand;
+                    } else {
+                        lastOnHand = date.onHand;
+                        startQty = startQty || lastOnHand;
+                        startIndex = startIndex || i;
+                    }
+                    return date;
+                });
+            (function backFillonHandQty(index, qty) {
+                while (index > 0) {
+                    arr[index].onHand = qty;
+                    index -=1;
+                }
+            }(startIndex, startQty));
+            return arr;
+        }());
         return dateCache;
     }
     function getAvgOfEl(arr, ele, period) {
@@ -144,6 +165,9 @@
         for (item in json) {
             row = json[item];
             row.records = processRecords(row.records);
+            if (item === "Royal Jelly") {
+                window.rjStats = stats;
+            }
             stats = getRecordStats(row.records.concat().reverse(), 30);
             
             table.push({
@@ -160,6 +184,7 @@
             });
         }
         createInventoryTable(table);
+
         window.tableData = table;
     }
 
