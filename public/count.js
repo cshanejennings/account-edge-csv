@@ -1,4 +1,11 @@
-(function (_, $, jStat, createRecordTable, createRecordChart) {
+(function (
+        _,
+        $,
+        jStat,
+        createInventoryTable,
+        createRecordTable,
+        createRecordChart
+    ) {
     "use strict";
     _.mixin({
         toArrayFromObj: function (object, keyName)
@@ -152,67 +159,7 @@
                 records: row.records
             });
         }
-        
-        $('#items').dataTable({
-            aaData: table,
-            aoColumns: [
-                { mData: 'id' },
-                { mData: 'pn' },
-                {
-                    mData: 'transactions',
-                    sType: "number"
-                },
-                {
-                    mData: 'avgBought',
-                    sType: "number"
-                },
-                {
-                    mData: 'avgSold',
-                    sType: "number"
-                },
-                {
-                    mData: 'avgInv',
-                    sType: "number"
-                },
-                {
-                    mData: 'onHand',
-                    sType: "number"
-                },
-                {
-                    mData: 'bought',
-                    sType: "number"
-                },
-                {
-                    mData: 'sold',
-                    sType: "number"
-                }
-            ],
-            fnRowCallback: function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
-                nRow = $(nRow);
-                var checked = nRow.hasClass("checked");
-                function checkClass() {
-                    if (checked) {
-                        nRow.addClass("checked");
-                    } else {
-                        nRow.removeClass("checked");
-                    }
-                }
-                
-                function rowClick(event) {
-                    event.stopPropagation();
-                    event.stopImmediatePropagation();
-                    checked  = !nRow.hasClass("checked");
-                    if (checked) {
-                        var table = createRecordTable(aData.records);
-                        var chart = createRecordChart(aData.records, table);
-                    }
-                    checkClass();
-                }
-                nRow.unbind("click", rowClick);
-                nRow.bind("click", rowClick);
-                checkClass();
-            }
-        });
+        createInventoryTable(table);
         window.tableData = table;
     }
 
@@ -229,4 +176,10 @@
     }
     
     $(initLocal);
-}(window._, jQuery, window.jStat, ItemView, window.ItemChart));
+}(
+    window._, jQuery,
+    window.jStat,
+    window.InventoryTable,
+    window.ItemView,
+    window.ItemChart
+));

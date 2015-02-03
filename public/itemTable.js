@@ -1,7 +1,5 @@
 var ItemView = (function ($) {
 	return function createRowTable(records) {
-        console.log(records[0].displayDate);
-
 		var table;
         $("#supplement-history-modal").modal();
         table = $("#supplement_history_chart").dataTable({
