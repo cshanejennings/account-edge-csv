@@ -14,7 +14,7 @@ var InventoryTable = (function (
                     sType: "number"
                 },
                 {
-                    mData: 'inventoryToSales',
+                    mData: 'surplus',
                     sType: "number"
                 },
                 {
