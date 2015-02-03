@@ -85,8 +85,9 @@
         });
         return dateCache;
     }
-    function getAvgOfEl(arr, ele) {
-        return Math.round(jStat.sum(_.pluck(arr, ele)) / arr.length * 100) / 100;
+    function getAvgOfEl(arr, ele, period) {
+        period = period || 1;
+        return Math.round(jStat.sum(_.pluck(arr, ele)) / arr.length * period * 100) / 100;
     }
 
     // This function receives a list of records containing:
@@ -97,12 +98,14 @@
         var dateTotals = getDateTotalsForItem(records),
             l = testRangeLength;
         function getDateMetrics(start, finish) {
-            
-            start = (start > 0) ? start : 0;
+            if (finish - start < 0) {
+                finish = period;
+                start = 0;
+            }
             var arr = dateTotals.slice(start, finish),
                 date = dateTotals[finish];
-            date.avgBought = getAvgOfEl(arr, "bought") || 0;
-            date.avgSold = getAvgOfEl(arr, "bought") || 0;
+            date.avgBought = getAvgOfEl(arr, "bought", period) || 0;
+            date.avgSold = getAvgOfEl(arr, "bought", period) || 0;
             date.avgOnHand = getAvgOfEl(arr, "onHand") || 0;
         }
         while (l > 0) {
@@ -110,7 +113,7 @@
             getDateMetrics(l - period, l);
         }
         return {
-            totals: {
+            period: {
                 bought: getAvgOfEl(dateTotals, "avgBought"),
                 sold: getAvgOfEl(dateTotals, "avgSold"),
                 onHand: getAvgOfEl(dateTotals, "avgOnHand"),
@@ -151,8 +154,8 @@
                 id: item,
                 pn: row.pn,
                 transactions: Number(row.transactions),
-                peak: Number(row.purchaseSummary.peak),
-                avgSold: Number(stats.totals.sold),
+                avgInv: Number(stats.period.onHand),
+                avgSold: Number(stats.period.sold),
                 onHand: Number(row.onHand),
                 bought: Number(row.bought),
                 sold: Number(row.sold),
@@ -170,11 +173,11 @@
                     sType: "number"
                 },
                 {
-                    mData: 'peak',
+                    mData: 'avgSold',
                     sType: "number"
                 },
                 {
-                    mData: 'avgSold',
+                    mData: 'avgInv',
                     sType: "number"
                 },
                 {
