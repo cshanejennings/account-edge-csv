@@ -1,38 +1,33 @@
+
 var RecordProcessor = (function () {
 	"use strict";
-	function getDateTable(start, stop) {
+	function createDateRange(start, stop) {
         start = moment(start);
         stop = (stop)? moment(stop): moment({hour: 0});
-        var table = {
-                hash: {},
-                list: [],
-                length: 0
-            },
+        var table = {},
             days = stop.diff(start, "days"),
             range = {};
         _.times(days + 1, function(n) {
             var date = moment(start).add(n, 'days');
-            table.list.push(date);
-            table.hash[date.format("YYYY-MM-DD")] = {
+            table[date.format("YYYY-MM-DD")] = {
                 sold: 0,
                 bought: 0,
                 onHand: 0
             };
-            table.length += 1;
         });
         return table;
     }
 
-    var dataTable = getDateTable(
-            moment("2014 01 01", "YYYY MM DD")._d,
-            moment("2014 12 31", "YYYY MM DD")._d
-        );
-    var testRangeLength = dataTable.length;
+    var dataTable = createDateRange(
+        moment("2014 01 01", "YYYY MM DD")._d,
+        moment("2014 12 31", "YYYY MM DD")._d
+    );
 
     function getDateTotalsForItem(records) {
         records = records.concat();
-        var dateCache = _.cloneDeep(dataTable.hash);
-        function moveRecordToDate(record) {
+        var dateCache = _.cloneDeep(dataTable);
+        
+        _.map(records, function moveRecordToDate(record) {
             var date = dateCache[moment(record.date).format("YYYY-MM-DD")] || {};
             if (!date) { return; }
             if (record.changeQty > 0) {
@@ -41,44 +36,34 @@ var RecordProcessor = (function () {
                 date.bought -= Number(record.changeQty);
             }
             date.onHand += Number(record.onHand);
-        }
-        while(records.length > 0) {
-            moveRecordToDate(records.pop());
-        }
-
-        dateCache = (function () {
-            var lastOnHand = 0,
-                startIndex = 0,
-                startQty = 0,
-                arr = _.keys(dateCache).map(function (dateString, i) {
+        });
+        return (function backFill(currentOnHand, first) {
+            var arr = _.map(_.keys(dateCache), function (dateString, i) {
                     var date = dateCache[dateString];
                     date.date = dateString;
                     if (date.onHand === 0 && date.sold === 0 && date.bought === 0) {
-                        date.onHand = lastOnHand;
+                        date.onHand = currentOnHand;
                     } else {
-                        lastOnHand = date.onHand;
-                        startQty = startQty || lastOnHand;
-                        startIndex = startIndex || i;
+                        currentOnHand = date.onHand;
+                        first.onHand = first.onHand || currentOnHand;
+                        first.index = first.index || i;
                     }
                     return date;
                 });
-            (function backFillonHandQty(index, qty) {
-                while (index > 0) {
-                    arr[index].onHand = qty;
-                    index -=1;
-                }
-            }(startIndex, startQty));
+            _.map(arr.slice(0, first.index), function (el) {
+                el.onHand = first.onHand; // backfill onHand Qty
+            });
             return arr;
-        }());
-        return dateCache;
+        }(0, {}));
     }
+
     function getAvgOfEl(arr, ele, period) {
         period = period || 1;
         return Math.round(jStat.sum(_.pluck(arr, ele)) / arr.length * period * 100) / 100;
     }
 	return function getRecordStats(data) {
         var dateTotals = getDateTotalsForItem(data.records),
-            l = testRangeLength,
+            l = dateTotals.length,
             derived;
         function getDateMetrics(start, finish) {
             if (finish - start < 0) {
