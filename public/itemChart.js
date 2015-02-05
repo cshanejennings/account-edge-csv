@@ -1,21 +1,29 @@
 var ItemChart = (function (_, d3, $) {
     return function createRowChart(bardata, table) {
 //        $("#chart").html('');
-        bardata = bardata.map(function(r) {
+        bardata = _.map(bardata, function(r) {
             r.onHand = Number(r.onHand);
             r.date = new Date(r.date);
             return r;
         });
+        var chart = {
+            margin: {
+                top: 30,
+                right: 30,
+                bottom: 40,
+                left:50
+            },
+            height: 300,
+            width: 785,
+            palete: {
+                highlight: 'yellow',
+                original: null
+            }
+        };
+        console.log(chart);
 
-
-        var margin = { top: 30, right: 30, bottom: 40, left:50 };
-
-        var height = 300 - margin.top - margin.bottom,
-            width = 785 - margin.left - margin.right,
-            barWidth = 50,
-            barOffset = 5;
-
-        var tempColor;
+        var height = 300 - chart.margin.top - chart.margin.bottom,
+            width = 785 - chart.margin.left - chart.margin.right;
 
         var colorScale = d3.scale.linear()
                 .domain([0, d3.max(bardata, function(d) {
@@ -46,10 +54,10 @@ var ItemChart = (function (_, d3, $) {
 
         var myChart = d3.select('#supplement_history_graph').append('svg')
             .style('background', '#E7E0CB')
-            .attr('width', width + margin.left + margin.right)
-            .attr('height', height + margin.top + margin.bottom)
+            .attr('width', width + chart.margin.left + chart.margin.right)
+            .attr('height', height + chart.margin.top + chart.margin.bottom)
             .append('g')
-            .attr('transform', 'translate('+ margin.left +', '+ margin.top +')')
+            .attr('transform', 'translate('+ chart.margin.left +', '+ chart.margin.top +')')
             .selectAll('rect').data(bardata)
             .enter().append('rect')
                 .style('fill', function(d,i) {
@@ -73,10 +81,10 @@ var ItemChart = (function (_, d3, $) {
                     .style('top',  (d3.event.pageY - 30) + 'px');
 
 
-                tempColor = this.style.fill;
+                chart.palete.original = this.style.fill;
                 d3.select(this)
                     .style('opacity', 0.5)
-                    .style('fill', 'yellow');
+                    .style('fill', chart.palete.highlight);
             })
 
             .on('mouseout', function(d) {
@@ -84,7 +92,7 @@ var ItemChart = (function (_, d3, $) {
                     .style('opacity', 0);
                 d3.select(this)
                     .style('opacity', 1)
-                    .style('fill', tempColor);
+                    .style('fill', chart.palete.original);
             })
             .on('click', function (d, i) {
                 console.log(d, i);
@@ -112,7 +120,7 @@ var ItemChart = (function (_, d3, $) {
 
         var vGuide = d3.select('svg').append('g');
             vAxis(vGuide);
-            vGuide.attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
+            vGuide.attr('transform', 'translate(' + chart.margin.left + ', ' + chart.margin.top + ')');
             vGuide.selectAll('path')
                 .style({ fill: 'none', stroke: "#000"});
             vGuide.selectAll('line')
@@ -136,7 +144,7 @@ var ItemChart = (function (_, d3, $) {
     console.log(hAxisLabelIndexes);
     var hGuide = d3.select('svg').append('g');
     hAxis(hGuide);
-    hGuide.attr('transform', 'translate(' + margin.left + ', ' + (height + margin.top) + ')');
+    hGuide.attr('transform', 'translate(' + chart.margin.left + ', ' + (height + chart.margin.top) + ')');
     hGuide.selectAll('path')
         .style({ fill: 'none', stroke: "#000"});
     hGuide.selectAll('line')

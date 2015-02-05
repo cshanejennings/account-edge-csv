@@ -76,24 +76,24 @@ var RecordProcessor = (function () {
         period = period || 1;
         return Math.round(jStat.sum(_.pluck(arr, ele)) / arr.length * period * 100) / 100;
     }
-	return function getRecordStats(records, period) {
-        var dateTotals = getDateTotalsForItem(records),
+	return function getRecordStats(data) {
+        var dateTotals = getDateTotalsForItem(data.records),
             l = testRangeLength,
             derived;
         function getDateMetrics(start, finish) {
             if (finish - start < 0) {
-                finish = period;
+                finish = data.timeWindow;
                 start = 0;
             }
             var arr = dateTotals.slice(start, finish),
                 date = dateTotals[finish];
-            date.avgBought = getAvgOfEl(arr, "bought", period) || 0;
-            date.avgSold = getAvgOfEl(arr, "sold", period) || 0;
+            date.avgBought = getAvgOfEl(arr, "bought", data.timeWindow) || 0;
+            date.avgSold = getAvgOfEl(arr, "sold", data.timeWindow) || 0;
             date.avgOnHand = getAvgOfEl(arr, "onHand") || 0;
         }
         while (l > 0) {
             l -= 1;
-            getDateMetrics(l - period, l);
+            getDateMetrics(l - data.timeWindow, l);
         }
         derived = {
             bought: getAvgOfEl(dateTotals, "avgBought"),

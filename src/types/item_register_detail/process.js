@@ -36,22 +36,6 @@ function processRecords(records) {
     return result;
 }
 
-function processItems(items) {
-    var i,
-        data,
-        item;
-    for (i in items) {
-        if (items.hasOwnProperty(i)) {
-            item = items[i];
-            data = processRecords(item.records);
-            item.onHand = Number(data.onHand);
-            item.bought = Number(data.bought);
-            item.sold = Number(data.sold);
-        }
-    }
-    return items;
-}
-
 function processTable(arr) {
     var i, l = arr.length, items = {};
     function addItem(obj) {
@@ -82,6 +66,16 @@ function processTable(arr) {
         addItem(arr[i]);
     }
 
+    return items;
+}
+
+function processItems(items) {
+    _.forOwn(items, function (item) {
+        var data = processRecords(item.records);
+        item.onHand = Number(data.onHand);
+        item.bought = Number(data.bought);
+        item.sold = Number(data.sold);
+    });
     return items;
 }
 
