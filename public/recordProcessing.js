@@ -1,15 +1,13 @@
 
 var RecordProcessor = (function () {
 	"use strict";
+    var tableData,
+        dateFormat = "YYYY-MM-DD";
 	function createDateRange(start, stop) {
-        start = moment(start);
-        stop = (stop)? moment(stop): moment({hour: 0});
         var table = {},
-            days = stop.diff(start, "days"),
-            range = {};
+            days = stop.diff(start, "days");
         _.times(days + 1, function(n) {
-            var date = moment(start).add(n, 'days');
-            table[date.format("YYYY-MM-DD")] = {
+            table[moment(start).add(n, 'days').format(dateFormat)] = {
                 sold: 0,
                 bought: 0,
                 onHand: 0
@@ -17,18 +15,15 @@ var RecordProcessor = (function () {
         });
         return table;
     }
+    function round (n) { return Math.round(n * 10) / 10; }
 
-    var dataTable = createDateRange(
-        moment("2014 01 01", "YYYY MM DD")._d,
-        moment("2014 12 31", "YYYY MM DD")._d
-    );
-
-    function getDateTotalsForItem(records) {
+    function getDateTotalsForItem(records, start, stop) {
         records = records.concat();
-        var dateCache = _.cloneDeep(dataTable);
+        tableData = tableData || createDateRange(start, stop);
+        var dateCache = _.cloneDeep(tableData);
         
         _.map(records, function moveRecordToDate(record) {
-            var date = dateCache[moment(record.date).format("YYYY-MM-DD")] || {};
+            var date = dateCache[moment(record.date).format(dateFormat)] || {};
             if (!date) { return; }
             if (record.changeQty > 0) {
                 date.sold += Number(record.changeQty);
@@ -59,10 +54,15 @@ var RecordProcessor = (function () {
 
     function getAvgOfEl(arr, ele, period) {
         period = period || 1;
-        return Math.round(jStat.sum(_.pluck(arr, ele)) / arr.length * period * 100) / 100;
+        return round(jStat.sum(_.pluck(arr, ele)) / arr.length * period);
     }
+
 	return function getRecordStats(data) {
-        var dateTotals = getDateTotalsForItem(data.records),
+        var dateTotals = getDateTotalsForItem(
+                data.records,
+                moment(data.start, dateFormat),
+                moment(data.stop, dateFormat)
+            ),
             l = dateTotals.length,
             derived;
         function getDateMetrics(start, finish) {
@@ -85,8 +85,7 @@ var RecordProcessor = (function () {
             sold: getAvgOfEl(dateTotals, "avgSold"),
             onHand: getAvgOfEl(dateTotals, "avgOnHand"),
         };
-        derived.surplus = Math.round((derived.onHand - derived.sold) * 100) / 100;
-        //console.log(derived.inventoryToSales);
+        derived.surplus = round(derived.onHand - derived.sold);
         return {
             period: derived,
             dates: dateTotals

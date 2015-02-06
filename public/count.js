@@ -16,6 +16,8 @@
             }),
             stats = recordProcessor({
                 records: data.records.concat().reverse(),
+                start: "2014-01-01",
+                stop: "2014-12-31",
                 timeWindow: 30
             });
         return {
