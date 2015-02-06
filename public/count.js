@@ -15,10 +15,11 @@
                 record.displayDate = moment(record.date).format("MMM-DD-YYYY");
             }),
             stats = recordProcessor({
-                records: data.records.concat().reverse(),
+                pn: data.pn,
+                records: data.records.concat(),
                 start: "2014-01-01",
                 stop: "2014-12-31",
-                timeWindow: 30
+                timeWindow: 7
             });
         return {
             id: data.id,

@@ -3,6 +3,7 @@ var RecordProcessor = (function () {
 	"use strict";
     var tableData,
         dateFormat = "YYYY-MM-DD";
+
 	function createDateRange(start, stop) {
         var table = {},
             days = stop.diff(start, "days");
@@ -15,13 +16,12 @@ var RecordProcessor = (function () {
         });
         return table;
     }
+
     function round (n) { return Math.round(n * 10) / 10; }
 
     function getDateTotalsForItem(records, start, stop) {
-        records = records.concat();
         tableData = tableData || createDateRange(start, stop);
         var dateCache = _.cloneDeep(tableData);
-        
         _.map(records, function moveRecordToDate(record) {
             var date = dateCache[moment(record.date).format(dateFormat)] || {};
             if (!date) { return; }
@@ -52,9 +52,30 @@ var RecordProcessor = (function () {
         }(0, {}));
     }
 
-    function getAvgOfEl(arr, ele, period) {
-        period = period || 1;
-        return round(jStat.sum(_.pluck(arr, ele)) / arr.length * period);
+    function getSumOfEl(arr, ele) {
+        return round(jStat.sum(_.pluck(arr, ele)));
+    }
+
+    function getAvgOfEl(arr, ele) {
+        return round(jStat.sum(_.pluck(arr, ele)) / arr.length);
+    }
+
+    function getDateMetrics(dateIndex, ts, dateTotals) {
+        var startIndex,
+            finishIndex = dateIndex;
+        if (dateIndex >= ts) {
+            startIndex = dateIndex - ts + 1;
+        } else {
+            startIndex = 0;
+            finishIndex = ts - 1;
+        }
+        var arr = dateTotals.slice(startIndex, finishIndex + 1),
+            l = arr.length,
+            date = dateTotals[dateIndex];
+        date.avgBought = getSumOfEl(arr, "bought") || 0;
+        date.avgSold = getSumOfEl(arr, "sold") || 0;
+        date.avgOnHand = getAvgOfEl(arr, "onHand") || 0;    
+        return date;
     }
 
 	return function getRecordStats(data) {
@@ -65,21 +86,10 @@ var RecordProcessor = (function () {
             ),
             l = dateTotals.length,
             derived;
-        function getDateMetrics(start, finish) {
-            if (finish - start < 0) {
-                finish = data.timeWindow;
-                start = 0;
-            }
-            var arr = dateTotals.slice(start, finish),
-                date = dateTotals[finish];
-            date.avgBought = getAvgOfEl(arr, "bought", data.timeWindow) || 0;
-            date.avgSold = getAvgOfEl(arr, "sold", data.timeWindow) || 0;
-            date.avgOnHand = getAvgOfEl(arr, "onHand") || 0;
-        }
-        while (l > 0) {
-            l -= 1;
-            getDateMetrics(l - data.timeWindow, l);
-        }
+        _.map(dateTotals, function (el, i) {
+            getDateMetrics(i, data.timeWindow, dateTotals);
+        });
+        
         derived = {
             bought: getAvgOfEl(dateTotals, "avgBought"),
             sold: getAvgOfEl(dateTotals, "avgSold"),
