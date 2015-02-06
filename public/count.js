@@ -3,6 +3,7 @@
         $,
         jStat,
         createInventoryTable,
+        plotTransactions,
         recordProcessor,
         createRecordTable,
         createRecordChart
@@ -15,11 +16,13 @@
                 record.displayDate = moment(record.date).format("MMM-DD-YYYY");
             }),
             stats = recordProcessor({
-                pn: data.pn,
-                records: data.records.concat(),
-                start: "2014-01-01",
-                stop: "2014-12-31",
-                timeWindow: 7
+                timeWindow: 7,
+                cal: plotTransactions({
+                    pn: data.pn,
+                    records: data.records.concat(),
+                    start: "2014-01-01",
+                    stop: "2014-12-31"
+                })
             });
         return {
             id: data.id,
@@ -64,6 +67,7 @@
     window._, jQuery,
     window.jStat,
     window.InventoryTable,
+    window.PlotTransactions,
     window.RecordProcessor,
     window.ItemView,
     window.ItemChart
