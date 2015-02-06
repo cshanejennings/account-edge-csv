@@ -40,7 +40,9 @@ var PlotTransactions = (function () {
 
     function plotTransactions(records, start, stop) {
         tableData = tableData || createDateRange(start, stop);
+
         var dateCache = _.cloneDeep(tableData);
+
         _.map(records, function moveRecordToDate(record) {
             var date = dateCache[moment(record.date).format(dateFormat)] || {};
             if (!date) { return; }

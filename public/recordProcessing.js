@@ -35,20 +35,20 @@ var RecordProcessor = (function () {
     }
 
 	return function getRecordStats(data) {
-        var cal = data.cal,
+        var calendar = data.calendar,
             derived;
-        _.map(cal, function (el, i) {
-            _.extend(cal[i], getDateMetrics(i, data.timeWindow, cal));
+        _.map(calendar, function (el, i) {
+            _.extend(calendar[i], getDateMetrics(i, data.timeWindow, calendar));
         });
         derived = {
-            bought: getAvgOfEl(cal, "avgBought"),
-            sold: getAvgOfEl(cal, "avgSold"),
-            onHand: getAvgOfEl(cal, "avgOnHand"),
+            bought: getAvgOfEl(calendar, "avgBought"),
+            sold: getAvgOfEl(calendar, "avgSold"),
+            onHand: getAvgOfEl(calendar, "avgOnHand"),
         };
         derived.surplus = round(derived.onHand - derived.sold);
         return {
             period: derived,
-            dates: cal
+            dates: calendar
         };
     };
 }());

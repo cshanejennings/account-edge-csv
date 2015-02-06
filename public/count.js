@@ -17,7 +17,7 @@
             }),
             stats = recordProcessor({
                 timeWindow: 7,
-                cal: plotTransactions({
+                calendar: plotTransactions({
                     pn: data.pn,
                     records: data.records.concat(),
                     start: "2014-01-01",
