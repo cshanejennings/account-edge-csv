@@ -4,6 +4,7 @@ var InventoryTable = (function (
         createRecordChart
     ) {
     var table,
+        selectedPeriod = "quarterly",
         colVis,
         tableRows = [
             {
@@ -22,31 +23,31 @@ var InventoryTable = (function (
                 sClass: 'smNumber_cell'
             },
             {
-                title: 'surplus',
+                title: 'avg surplus',
                 mData: 'surplus',
                 sClass: 'smNumber_cell',
-                period: 'quarterly'
+                period: 'lastQuarter'
             },
             {
-                title: 'avgBought',
+                title: 'avg bought',
                 mData: 'avgBought',
                 sClass: 'smNumber_cell',
-                period: 'quarterly'
+                period: 'lastQuarter'
             },
             {
-                title: 'avgSold',
+                title: 'avg sold',
                 mData: 'avgSold',
                 sClass: 'smNumber_cell',
-                period: 'quarterly'
+                period: 'lastQuarter'
             },
             {
-                title: 'avgInv',
+                title: 'avg stock',
                 mData: 'avgInv',
                 sClass: 'smNumber_cell',
-                period: 'quarterly'
+                period: 'lastQuarter'
             },
             {
-                title: 'onHand',
+                title: 'current stock',
                 mData: 'onHand',
                 sClass: 'smNumber_cell'
             },
@@ -91,10 +92,18 @@ var InventoryTable = (function (
             };
         });
     }
+    function setPeriod(period) {
+        selectedPeriod = period;
+        _.map(tableRows, function (el, i) {
+            var display = (el.period === selectedPeriod);
+            if (el.hasOwnProperty("period")) {
+                table.column(i).visible(display);
+            }
+        });
+    }
     $(function () {
-        $("#showRecords").click(function() {
-            var column = table.column(2);
-            column.visible(!column.visible());
+        $("button.timePeriod").click(function() {
+            setPeriod($(this).attr("data-period"));
         });
     });
     
