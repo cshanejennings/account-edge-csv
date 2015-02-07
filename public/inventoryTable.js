@@ -3,45 +3,103 @@ var InventoryTable = (function (
         createRecordTable,
         createRecordChart
     ) {
+    var dataTable,
+        tableRows = [
+            {
+                title: 'ID',
+                mData: 'id',
+                sClass: 'memo_cell'
+            },
+            {
+                title: 'Part Number',
+                mData: 'pn',
+                sClass: 'memo_cell'
+            },
+            {
+                title: 'records',
+                mData: 'transactions',
+                sClass: 'smNumber_cell'
+            },
+            {
+                title: 'surplus',
+                mData: 'surplus',
+                sClass: 'smNumber_cell'
+            },
+            {
+                title: 'avgBought',
+                mData: 'avgBought',
+                sClass: 'smNumber_cell'
+            },
+            {
+                title: 'avgSold',
+                mData: 'avgSold',
+                sClass: 'smNumber_cell'
+            },
+            {
+                title: 'avgInv',
+                mData: 'avgInv',
+                sClass: 'smNumber_cell'
+            },
+            {
+                title: 'onHand',
+                mData: 'onHand',
+                sClass: 'smNumber_cell'
+            },
+            {
+                title: 'bought',
+                mData: 'bought',
+                sClass: 'smNumber_cell'
+            },
+            {
+                title: 'sold',
+                mData: 'sold',
+                sClass: 'smNumber_cell'
+            }
+            
+        ],
+        sClass = {
+            smNumber_cell: {
+                searchable: false,
+                type: "number"
+            },
+            memo_cell: {
+                searchable: true,
+                type: "number"
+            }
+        };
+    function get_columnDefs() {
+        return _.map(tableRows.concat(), function (el, i) {
+            return {
+                title: el.title,
+                searchable: (sClass[el.sClass].searchable),
+                targets: i
+            };
+        });
+    }
+    function get_aoColumns() {
+        return _.map(tableRows.concat(), function (el, i) {
+            return {
+                mData: el.mData || el.title,
+                sClass: el.sClass,
+                sType: sClass[el.sClass].type
+            };
+        });
+    }
+    $(function () {
+        $("#showRecords").click(function() {
+            // not able to get columns variable
+            // see here: http://datatables.net/extensions/colvis/
+            var column = dataTable.column('records');
+            column.visible(!column.visible);
+        });
+    });
+    
 	return function createInventoryTable(table) {
-        $('#items').dataTable({
+        dataTable = $('#items').dataTable({
             aaData: table,
-            aoColumns: [
-                { mData: 'id' },
-                { mData: 'pn' },
-                {
-                    mData: 'transactions',
-                    sType: "number"
-                },
-                {
-                    mData: 'surplus',
-                    sType: "number"
-                },
-                {
-                    mData: 'avgBought',
-                    sType: "number"
-                },
-                {
-                    mData: 'avgSold',
-                    sType: "number"
-                },
-                {
-                    mData: 'avgInv',
-                    sType: "number"
-                },
-                {
-                    mData: 'onHand',
-                    sType: "number"
-                },
-                {
-                    mData: 'bought',
-                    sType: "number"
-                },
-                {
-                    mData: 'sold',
-                    sType: "number"
-                }
-            ],
+            columnDefs: get_columnDefs(),
+            columns: get_columnDefs(),
+            aoColumns: get_aoColumns(),
             fnRowCallback: function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
                 nRow = $(nRow);
                 var checked = nRow.hasClass("checked");
@@ -71,6 +129,6 @@ var InventoryTable = (function (
     };
 }(
     jQuery,
-    window.ItemView,
+    window.ItemTable,
     window.ItemChart
 ));

@@ -3,8 +3,8 @@
         $,
         jStat,
         createInventoryTable,
-        plotTransactions,
-        recordProcessor,
+        createItemCalendar,
+        itemTimeline,
         createRecordTable,
         createRecordChart
     ) {
@@ -15,9 +15,9 @@
                 record.date = new Date(record.date);
                 record.displayDate = moment(record.date).format("MMM-DD-YYYY");
             }),
-            stats = recordProcessor({
+            stats = itemTimeline({
                 timeWindow: 7,
-                calendar: plotTransactions({
+                calendar: createItemCalendar({
                     pn: data.pn,
                     records: data.records.concat(),
                     start: "2014-01-01",
@@ -67,8 +67,8 @@
     window._, jQuery,
     window.jStat,
     window.InventoryTable,
-    window.PlotTransactions,
-    window.RecordProcessor,
-    window.ItemView,
+    window.ItemCalendar,
+    window.ItemTimeline,
+    window.ItemTable,
     window.ItemChart
 ));

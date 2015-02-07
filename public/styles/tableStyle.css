@@ -29,6 +29,10 @@ td {
     color: #333;
 }
 
+table.dataTable thead th {
+    font-size: 9.5pt !important;
+    font-weight: normal;
+}
 
 .dataTables_length,
 .dataTables_filter,

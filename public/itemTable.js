@@ -1,16 +1,16 @@
-var ItemView = (function ($) {
+var ItemTable = (function ($) {
 	return function createRowTable(records) {
 		var table;
         $("#supplement-history-modal").modal();
         table = $("#supplement_history_chart").dataTable({
             aaData: records,
             columnDefs: [
-            { title: 'Date' },
-            { title: 'src' },
-            { title: 'memo' },
-            { title: 'onHand' },
-            { title: 'changeQty' },
-            { title: 'startQty' }
+            { title: 'Date', targets: 0 },
+            { title: 'src', targets: 1 },
+            { title: 'memo', targets: 2 },
+            { title: 'onHand', targets: 3 },
+            { title: 'changeQty', targets: 4 },
+            { title: 'startQty', targets: 5 }
         ],
             aoColumns: [
             { mData: 'displayDate' },

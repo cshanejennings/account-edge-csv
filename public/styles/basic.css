@@ -47,4 +47,6 @@
 th.date_cell { width: 150px;}
 th.smText_cell { width: 20px;}
 th.memo_cell { width: 200px;}
+
+td.smNumber_cell,
 th.smNumber_cell { width: 10px;}
