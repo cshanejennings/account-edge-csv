@@ -4,6 +4,7 @@ var InventoryTable = (function (
         createRecordChart
     ) {
     var dataTable,
+        colVis,
         tableRows = [
             {
                 title: 'ID',
@@ -71,6 +72,7 @@ var InventoryTable = (function (
         return _.map(tableRows.concat(), function (el, i) {
             return {
                 title: el.title,
+                columnSelector: el.title,
                 searchable: (sClass[el.sClass].searchable),
                 targets: i
             };
@@ -87,15 +89,14 @@ var InventoryTable = (function (
     }
     $(function () {
         $("#showRecords").click(function() {
-            // not able to get columns variable
-            // see here: http://datatables.net/extensions/colvis/
-            var column = dataTable.column('records');
-            column.visible(!column.visible);
+            var column = dataTable.column(2);
+            column.visible(!column.visible());
         });
     });
     
 	return function createInventoryTable(table) {
-        dataTable = $('#items').dataTable({
+        dataTable = $('#items').DataTable({
+            // dom: 'C<"clear">lfrtip',
             aaData: table,
             columnDefs: get_columnDefs(),
             columns: get_columnDefs(),

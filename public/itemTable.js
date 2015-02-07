@@ -2,7 +2,7 @@ var ItemTable = (function ($) {
 	return function createRowTable(records) {
 		var table;
         $("#supplement-history-modal").modal();
-        table = $("#supplement_history_chart").dataTable({
+        table = $("#supplement_history_chart").DataTable({
             aaData: records,
             columnDefs: [
             { title: 'Date', targets: 0 },
