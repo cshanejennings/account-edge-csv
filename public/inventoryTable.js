@@ -3,7 +3,7 @@ var InventoryTable = (function (
         createRecordTable,
         createRecordChart
     ) {
-    var dataTable,
+    var table,
         colVis,
         tableRows = [
             {
@@ -24,22 +24,26 @@ var InventoryTable = (function (
             {
                 title: 'surplus',
                 mData: 'surplus',
-                sClass: 'smNumber_cell'
+                sClass: 'smNumber_cell',
+                period: 'quarterly'
             },
             {
                 title: 'avgBought',
                 mData: 'avgBought',
-                sClass: 'smNumber_cell'
+                sClass: 'smNumber_cell',
+                period: 'quarterly'
             },
             {
                 title: 'avgSold',
                 mData: 'avgSold',
-                sClass: 'smNumber_cell'
+                sClass: 'smNumber_cell',
+                period: 'quarterly'
             },
             {
                 title: 'avgInv',
                 mData: 'avgInv',
-                sClass: 'smNumber_cell'
+                sClass: 'smNumber_cell',
+                period: 'quarterly'
             },
             {
                 title: 'onHand',
@@ -89,42 +93,27 @@ var InventoryTable = (function (
     }
     $(function () {
         $("#showRecords").click(function() {
-            var column = dataTable.column(2);
+            var column = table.column(2);
             column.visible(!column.visible());
         });
     });
     
-	return function createInventoryTable(table) {
-        dataTable = $('#items').DataTable({
-            // dom: 'C<"clear">lfrtip',
-            aaData: table,
+	return function createInventoryTable(tableData) {
+        table = $('#items').DataTable({
+            aaData: tableData,
             columnDefs: get_columnDefs(),
             columns: get_columnDefs(),
             aoColumns: get_aoColumns(),
             fnRowCallback: function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
                 nRow = $(nRow);
-                var checked = nRow.hasClass("checked");
-                function checkClass() {
-                    if (checked) {
-                        nRow.addClass("checked");
-                    } else {
-                        nRow.removeClass("checked");
-                    }
-                }
-                
                 function rowClick(event) {
                     event.stopPropagation();
                     event.stopImmediatePropagation();
-                    checked  = !nRow.hasClass("checked");
-                    if (checked) {
-                        var table = createRecordTable(aData.records);
-                        var chart = createRecordChart(aData.records, table);
-                    }
-                    checkClass();
+                    var table = createRecordTable(aData.records);
+                    var chart = createRecordChart(aData.records, table);
                 }
                 nRow.unbind("click", rowClick);
                 nRow.bind("click", rowClick);
-                checkClass();
             }
         });
     };
