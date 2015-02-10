@@ -39,15 +39,16 @@ if (!options.hasOwnProperty("file_name")) {
 if (!options.hasOwnProperty("type")) {
 	throw 'set type parameter to select the csv parser you wish to use with this csv file, ex: type="item-transactions"';
 }
-// node app file_name="Item Transactions.csv" type="item-transactions"
-// node app file_name="Items Register Detail.csv" type="item-register-detail"
-
+// node app file_name="Item Transactions.csv" type="item-transactions" dest="data.json"
+// node app file_name="Items Register Detail.csv" type="item-register-detail" dest="data.json"
+// node app file_name="Item List Detail.csv" type="item-list-detail" dest="items.json"
+//node app file_name="Items Export.csv" type="items-export" dest="items.json"
 csv_parser.parse_csv_file(options, function (err, output) {
 	print_supplements(output.json, 50);
 	if(err) {
 		console.error(err);
 	} else {
-		require('jsonfile').writeFile(config.write_folder + 'data.json', output.json, function (err) {
+		require('jsonfile').writeFile(config.write_folder + options.dest, output.json, function (err) {
 			if (err) {
 				console.log(err);
 			} else if (debugMode) {

@@ -60,8 +60,12 @@
                 onHand: Number(rawData.onHand),
                 bought: Number(rawData.bought),
                 sold: Number(rawData.sold),
+                cost: Math.round(Number(rawData.cost) * Number(rawData.onHand) * 100) / 100,
                 records: records
             };
+        if (isNaN(row.cost)) {
+            row.cost = 0;
+        }
         _.forEach(config.periods, function(days, period) {
             _.map(stats[period], function(val, key) {
                 row[period + "_" + key] = val;
@@ -70,6 +74,7 @@
         return row;
     }
     function print_supplements(json) {
+        console.log(json);
         var table = _.map(_.keys(json), function (key) {
             return getTableRowData(json[key]);
         });
@@ -77,7 +82,14 @@
     }
 
     function initLocal() {
-        $.getJSON('data/data.json', print_supplements);
+        $.getJSON('data/data.json', function (supplements) {
+            $.getJSON('data/items.json', function (prices) {
+                _.forEach(prices, function (data, pn) {
+                    _.extend(supplements[pn], data);
+                });
+                print_supplements(supplements);
+            });
+        });
     }
 
     function initFromCMS() {

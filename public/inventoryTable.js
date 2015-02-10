@@ -28,6 +28,11 @@ var InventoryTable = (function (
                 sClass: 'smNumber_cell'
             },
             {
+                title: 'cost',
+                mData: 'cost',
+                sClass: 'smNumber_cell'
+            },
+            {
                 title: 'bought',
                 mData: 'bought',
                 sClass: 'smNumber_cell'

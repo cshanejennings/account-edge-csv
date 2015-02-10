@@ -5,7 +5,9 @@ var fs = require('fs'),
 	api = {},
 	types = {
 		"item-transactions": require('./types/item_transactions/index.js'),
-		"item-register-detail": require('./types/item_register_detail/index.js')
+		"item-register-detail": require('./types/item_register_detail/index.js'),
+		"item-list-detail": require('./types/item_list_detail/index'),
+		"items-export": require('./types/items_export/index')
 	};
 
 function create_json(sessionData, done) {
