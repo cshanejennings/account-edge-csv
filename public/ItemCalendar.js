@@ -17,7 +17,7 @@ var ItemCalendar = (function () {
         return table;
     }
 
-    function backFillDates(dateCache) {
+    function backFillDates(dateCache, max) {
         var firstTrans = {},
             carry = 0,
             arr = _.map(_.keys(dateCache), function (dateString, i) {
@@ -31,7 +31,8 @@ var ItemCalendar = (function () {
                     firstTrans.index = firstTrans.index || i;
                 }
                 return date;
-            });
+            }),
+            testArr;
         _.map(arr.slice(0, firstTrans.index), function (el) {
             el.onHand = firstTrans.onHand; // backfill onHand Qty
         });
@@ -41,7 +42,9 @@ var ItemCalendar = (function () {
     function plotTransactions(records, start, stop) {
         tableData = tableData || createDateRange(start, stop);
 
-        var dateCache = _.cloneDeep(tableData);
+        var dateCache = _.cloneDeep(tableData),
+            max = jStat.max(_.map(_.pluck(records, "onHand"),
+                function (el) { return Number(el) }));
 
         _.map(records, function moveRecordToDate(record) {
             var date = dateCache[moment(record.date).format(dateFormat)] || {};
@@ -51,9 +54,9 @@ var ItemCalendar = (function () {
             } else {
                 date.bought -= Number(record.changeQty);
             }
-            date.onHand += Number(record.onHand);
+            date.onHand = Number(record.onHand);
         });
-        return backFillDates(dateCache);
+        return backFillDates(dateCache, max);
     }
 
 	return function getRecordStats(data) {

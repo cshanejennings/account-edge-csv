@@ -1,6 +1,6 @@
 
 var ItemTimeline = (function () {
-	"use strict";
+    "use strict";
     var dateFormat = "YYYY-MM-DD";
 
     function round (n) {
@@ -15,9 +15,10 @@ var ItemTimeline = (function () {
         return round(jStat.sum(_.pluck(arr, ele)) / arr.length);
     }
 
-    function getDateMetrics(dateIndex, ts, cal) {
+    function plotAverages(dateIndex, ts, cal) {
         var startIndex,
-            finishIndex = dateIndex;
+            finishIndex = dateIndex,
+            period = {};
         if (dateIndex >= ts) {
             startIndex = dateIndex - ts + 1;
         } else {
@@ -27,27 +28,40 @@ var ItemTimeline = (function () {
         var arr = cal.slice(startIndex, finishIndex + 1),
             l = arr.length,
             date = cal[dateIndex];
-        return {
-            avgBought: getSumOfEl(arr, "bought") || 0,
-            avgSold: getSumOfEl(arr, "sold") || 0,
-            avgOnHand: getAvgOfEl(arr, "onHand") || 0
-        };
+        period.avgBought = getSumOfEl(arr, "bought") || 0;
+        period.avgSold = getSumOfEl(arr, "sold") || 0;
+        period.avgOnHand = getAvgOfEl(arr, "onHand") || 0;
+        return period;
     }
 
-	return function getRecordStats(data) {
-        var calendar = data.calendar,
-            derived;
-        _.map(calendar, function (el, i) {
-            _.extend(calendar[i], getDateMetrics(i, data.timeWindow, calendar));
+    function processMetrics(dates) {
+        var data = {};
+        data.bought = getAvgOfEl(dates, "avgBought");
+        data.sold = getAvgOfEl(dates, "avgSold");
+        data.stock = getAvgOfEl(dates, "avgOnHand");
+        data.surplus = round(data.stock - data.sold);
+        return data;
+    }
+
+    function getPeriodMetrics(cal, calSize, days) {
+        return processMetrics(cal.slice(calSize - days, calSize - 1));
+    }
+
+    function getReports(reports, cal, l) {
+        var periods = {};
+        _.forEach(reports, function (data, period) {
+            periods[period] = getPeriodMetrics(cal, l, data.days);
         });
-        derived = {
-            bought: getAvgOfEl(calendar, "avgBought"),
-            sold: getAvgOfEl(calendar, "avgSold"),
-            onHand: getAvgOfEl(calendar, "avgOnHand"),
-        };
-        derived.surplus = round(derived.onHand - derived.sold);
-        return {
-            period: derived
-        };
+        return periods;
+    }
+
+    return function getRecordStats(data) {
+        var calendar = data.calendar,
+            periods = {};
+        _.map(calendar, function (el, i) {
+            _.extend(el, plotAverages(i, data.timeWindow, calendar));
+        });
+        return getReports(data.periods, calendar, calendar.length);
     };
+
 }());

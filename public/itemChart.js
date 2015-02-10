@@ -20,7 +20,6 @@ var ItemChart = (function (_, d3, $) {
                 original: null
             }
         };
-        console.log(chart);
 
         var height = 300 - chart.margin.top - chart.margin.bottom,
             width = 785 - chart.margin.left - chart.margin.right;
@@ -72,11 +71,9 @@ var ItemChart = (function (_, d3, $) {
                 .attr('y', height)
 
             .on('mouseover', function(d) {
-                console.log(d3.event.pageX);
-
                 tooltip.transition()
                     .style('opacity', 0.9);
-                tooltip.html(d.displayDate)
+                tooltip.html(d.displayDate + ": <strong>" + d.onHand + "</strong> on hand")
                     .style('left', (d3.event.pageX - 35) + 'px')
                     .style('top',  (d3.event.pageY - 30) + 'px');
 
@@ -95,7 +92,6 @@ var ItemChart = (function (_, d3, $) {
                     .style('fill', chart.palete.original);
             })
             .on('click', function (d, i) {
-                console.log(d, i);
                 table.displayRow(i);
             });
 

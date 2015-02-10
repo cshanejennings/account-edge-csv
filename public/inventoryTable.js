@@ -23,30 +23,6 @@ var InventoryTable = (function (
                 sClass: 'smNumber_cell'
             },
             {
-                title: 'avg surplus',
-                mData: 'surplus',
-                sClass: 'smNumber_cell',
-                period: 'lastQuarter'
-            },
-            {
-                title: 'avg bought',
-                mData: 'avgBought',
-                sClass: 'smNumber_cell',
-                period: 'lastQuarter'
-            },
-            {
-                title: 'avg sold',
-                mData: 'avgSold',
-                sClass: 'smNumber_cell',
-                period: 'lastQuarter'
-            },
-            {
-                title: 'avg stock',
-                mData: 'avgInv',
-                sClass: 'smNumber_cell',
-                period: 'lastQuarter'
-            },
-            {
                 title: 'current stock',
                 mData: 'onHand',
                 sClass: 'smNumber_cell'
@@ -73,25 +49,44 @@ var InventoryTable = (function (
                 type: "number"
             }
         };
+
+    function addPeriodMetricsToTable(metrics, periods) {
+        _.map(periods, function (period) {
+            _.map(metrics, function (metric) {
+                tableRows.push({
+                    title: 'avg ' + metric,
+                    mData: period + "_" + metric,
+                    sClass: 'smNumber_cell',
+                    visible: false,
+                    period: period
+                });
+            });
+        });
+    }
+
     function get_columnDefs() {
         return _.map(tableRows.concat(), function (el, i) {
             return {
                 title: el.title,
                 columnSelector: el.title,
                 searchable: (sClass[el.sClass].searchable),
+                visible: (el.hasOwnProperty("visible"))? el.visible : true,
                 targets: i
             };
         });
     }
+
     function get_aoColumns() {
         return _.map(tableRows.concat(), function (el, i) {
             return {
                 mData: el.mData || el.title,
                 sClass: el.sClass,
+                visible: (el.hasOwnProperty("visible"))? el.visible : true,
                 sType: sClass[el.sClass].type
             };
         });
     }
+
     function setPeriod(period) {
         selectedPeriod = period;
         _.map(tableRows, function (el, i) {
@@ -101,13 +96,18 @@ var InventoryTable = (function (
             }
         });
     }
-    $(function () {
+
+    function createButtons(periods) {
+        _.forEach(periods, function (data, period) {
+            $('<button class="timePeriod" data-period="' + period + '">' + data.label + '</button>').appendTo("#report_selection");
+        });
         $("button.timePeriod").click(function() {
             setPeriod($(this).attr("data-period"));
         });
-    });
+    }
     
-	return function createInventoryTable(tableData) {
+	return function createInventoryTable(tableData, config) {
+        addPeriodMetricsToTable(config.metrics, _.keys(config.periods));
         table = $('#items').DataTable({
             aaData: tableData,
             columnDefs: get_columnDefs(),
@@ -124,6 +124,9 @@ var InventoryTable = (function (
                 nRow.unbind("click", rowClick);
                 nRow.bind("click", rowClick);
             }
+        });
+        $(function () {
+            createButtons(config.periods);
         });
     };
 }(
