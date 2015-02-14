@@ -20,9 +20,8 @@ var ItemChart = (function (_, d3, $) {
                 original: null
             }
         };
-
-        var height = 300 - chart.margin.top - chart.margin.bottom,
-            width = 785 - chart.margin.left - chart.margin.right;
+        chart.height = chart.height - chart.margin.top - chart.margin.bottom;
+        chart.width = chart.width - chart.margin.left - chart.margin.right;
 
         var colorScale = d3.scale.linear()
                 .domain([0, d3.max(bardata, function(d) {
@@ -36,13 +35,13 @@ var ItemChart = (function (_, d3, $) {
                 .domain([0, d3.max(bardata, function(d) {
                     return d.onHand;
                 })])
-                .range([0, height]);
+                .range([0, chart.height]);
 
 
 
         var xScale = d3.scale.ordinal()
                 .domain(d3.range(0, bardata.length))
-                .rangeBands([0, width], 0.2);
+                .rangeBands([0, chart.width], 0.2);
         $("#chart_tooltip").remove();
         var tooltip = d3.select('body').append('div')
                 .attr('id', 'chart_tooltip')
@@ -53,8 +52,8 @@ var ItemChart = (function (_, d3, $) {
 
         var myChart = d3.select('#supplement_history_graph').append('svg')
             .style('background', '#E7E0CB')
-            .attr('width', width + chart.margin.left + chart.margin.right)
-            .attr('height', height + chart.margin.top + chart.margin.bottom)
+            .attr('width', chart.width + chart.margin.left + chart.margin.right)
+            .attr('height', chart.height + chart.margin.top + chart.margin.bottom)
             .append('g')
             .attr('transform', 'translate('+ chart.margin.left +', '+ chart.margin.top +')')
             .selectAll('rect').data(bardata)
@@ -68,7 +67,7 @@ var ItemChart = (function (_, d3, $) {
                     return xScale(i);
                 })
                 .attr('height', 0)
-                .attr('y', height)
+                .attr('y', chart.height)
 
             .on('mouseover', function(d) {
                 tooltip.transition()
@@ -100,50 +99,51 @@ var ItemChart = (function (_, d3, $) {
                 return yScale(ys);
             })
             .attr('y', function(d) {
-                return height - yScale(d.onHand);
+                return chart.height - yScale(d.onHand);
             });
+        function getVAxis() {
+            var vGuideScale = d3.scale.linear()
+                .domain([0, d3.max(bardata, function(d) {
+                    return d.onHand; 
+                })])
+                .range([chart.height, 0]);
 
-        var vGuideScale = d3.scale.linear()
-            .domain([0, d3.max(bardata, function(d) {
-                return d.onHand; 
-            })])
-            .range([height, 0]);
+            var vAxis = d3.svg.axis()
+                .scale(vGuideScale)
+                .orient('left')
+                .ticks(10);
 
-        var vAxis = d3.svg.axis()
-            .scale(vGuideScale)
-            .orient('left')
-            .ticks(10);
-
-        var vGuide = d3.select('svg').append('g');
+            var vGuide = d3.select('svg').append('g');
             vAxis(vGuide);
             vGuide.attr('transform', 'translate(' + chart.margin.left + ', ' + chart.margin.top + ')');
             vGuide.selectAll('path')
                 .style({ fill: 'none', stroke: "#000"});
             vGuide.selectAll('line')
                 .style({ stroke: "#000"});
-    var hAxisLabelIndexes = [];
-    var hAxis = d3.svg.axis()
-        .scale(xScale)
-        .orient('bottom')
-        // .tickValues(xScale.domain().filter(function(d, i) {
-        //     var space = i % Math.round((bardata.length / 5));
-        //     return !space;
-        // }))
-        .tickFormat(function(d, i){
-            var space = i % Math.round((bardata.length / 5));
-            if (!space) {
-                //hAxisLabelIndexes.push(i);
-                return bardata[i].date.toString("MMM-dd-yyyy");
-            }
-            return "";
-        });
-    console.log(hAxisLabelIndexes);
-    var hGuide = d3.select('svg').append('g');
-    hAxis(hGuide);
-    hGuide.attr('transform', 'translate(' + chart.margin.left + ', ' + (height + chart.margin.top) + ')');
-    hGuide.selectAll('path')
-        .style({ fill: 'none', stroke: "#000"});
-    hGuide.selectAll('line')
-        .style({ stroke: "#000"});
+        }
+        function getHAxis() {
+            var hAxisLabelIndexes = [];
+            var hAxis = d3.svg.axis()
+                .scale(xScale)
+                .orient('bottom')
+                .tickFormat(function(d, i){
+                    var interval = Math.round((bardata.length / 5)),
+                        space = i % interval;
+                    console.log("space", space);
+                    if (space === 0) {
+                        //hAxisLabelIndexes.push(i);
+                        return bardata[i].displayDate;
+                    }
+                });
+            var hGuide = d3.select('svg').append('g');
+            hAxis(hGuide);
+            hGuide.attr('transform', 'translate(' + chart.margin.left + ', ' + (chart.height + chart.margin.top) + ')');
+            hGuide.selectAll('path')
+                .style({ fill: 'none', stroke: "#000"});
+            hGuide.selectAll('line')
+                .style({ stroke: "#000"});
+        }
+        getVAxis();
+        getHAxis();
     };
 }(window._, d3, window.jQuery));

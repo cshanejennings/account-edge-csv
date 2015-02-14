@@ -15,6 +15,10 @@
                 "days": 365,
                 "label" : "Last 365 days"
             },
+            "whatever": {
+                "days": 45,
+                "label" : "Last 45 days"
+            },
             "biannual": {
                 "days": 180,
                 "label" : "Last 180 days"

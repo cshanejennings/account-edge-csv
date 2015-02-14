@@ -55,13 +55,13 @@ var ItemTimeline = (function () {
         return periods;
     }
 
-    return function getRecordStats(data) {
-        var calendar = data.calendar,
+    return function getRecordStats(item) {
+        var calendar = item.calendar,
             periods = {};
         _.map(calendar, function (el, i) {
-            _.extend(el, plotAverages(i, data.timeWindow, calendar));
+            _.extend(el, plotAverages(i, item.timeWindow, calendar));
         });
-        return getReports(data.periods, calendar, calendar.length);
+        return getReports(item.periods, calendar, calendar.length);
     };
 
 }());
